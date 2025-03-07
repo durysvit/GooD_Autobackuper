@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import (
 )
 from FileCopyWorker import *
 from CreationRuleWindow import *
-from NoRowSelectedInTableException import *
+from exception.NoRowSelectedInTableException import *
 
 ICON_FILE = "GooD_Autobackuper.svg"
 
@@ -51,8 +51,6 @@ class MainWindow(QMainWindow):
         tableLayout = QVBoxLayout()
         buttonsLayout = QHBoxLayout()
 
-        NUMBER_OF_COLUMNS = 4; NUMBER_OF_ROWS = 0 
-
         self.trayIcon = QSystemTrayIcon(self)
         self.trayIcon.setIcon(QIcon(ICON_FILE))
 
@@ -66,6 +64,8 @@ class MainWindow(QMainWindow):
         self.trayIcon.show()
 
         self.trayIcon.activated.connect(self.iconClicked)
+
+        NUMBER_OF_COLUMNS = 4; NUMBER_OF_ROWS = 0
 
         self.table = QTableWidget(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS)
         self.table.setHorizontalHeaderLabels(
@@ -151,14 +151,6 @@ class MainWindow(QMainWindow):
             os.makedirs(SOURCE_DIRECTORY)
 
         if not os.path.exists(PATH_TO_RULES_CSV):
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(FileExistsError("FileExistsError: table is empty; " +
-                    PATH_TO_RULES_CSV + " does not exsist.")),
-                QMessageBox.Ok
-            )
-
             with open(PATH_TO_RULES_CSV, 'w') as file:
                 pass
 
@@ -207,13 +199,13 @@ class MainWindow(QMainWindow):
 
         self.table.removeRow(selectedRow)
 
-        self.removeRowFromRulesFile(pathFrom, pathTo, account, time)
+        self.removeRuleFromRulesFile(pathFrom, pathTo, account, time)
 
         self.loadRulesToTable()
 
     # Deletes the selected rule from file PATH_TO_RULES_CSV.
     # Thrown FileExistsError if PATH_TO_RULES_CSV doesn't exsist.
-    def removeRowFromRulesFile(self, pathFrom, pathTo, account, time):
+    def removeRuleFromRulesFile(self, pathFrom, pathTo, account, time):
         rows = []
 
         if not os.path.exists(PATH_TO_RULES_CSV):

@@ -21,8 +21,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
-from FileNotUploadedException import *
-from NotExistFolderIDException import *
+from exception.FileNotUploadedException import *
+from exception.NotExistFolderIDException import *
 
 ONE_MINUT_IN_SECONDS = 60
 TOKEN_FILE = "token.pickle"
@@ -36,7 +36,7 @@ class FileCopyWorker(QThread):
     # Parameter rules is a list of rules.
     def __init__(self, rules):
         super().__init__()
-        self.rules = rules
+        self.rules = rules # Can be empty
         self.driveService = self.connectToGoogleDrive()
 
     # Saves user authorization data for automatic authorization in the future.

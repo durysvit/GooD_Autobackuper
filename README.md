@@ -18,7 +18,7 @@ Github [durysvit](https://github.com/durysvit).
 
 Email argnullo@gmail.com.
 
-## Requirements
+## Program requirements
 
 Functional requirements include the following capabilities:
 * the program has a graphical interface;
@@ -40,7 +40,7 @@ Create Google Cloud project:
 1. Create a project on [Google Cloud](https://console.cloud.google.com/projectcreate) — enter project name and ID.
 1. Google Cloud enable API Google­— see [Drive Python API](https://developers.google.com/drive/api/quickstart/python).
 1. Configure the OAuth consent screen and add yourself as a test user: in [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent?) enable User Type — External; press "Create".
-1. Add scopes: ".../auth/drive" and ".../auth/docs".
+1. Add scopes: "auth/drive" and "auth/docs".
 1. You also need to authorize credentials for the desktop application using an OAuth 2.0 client ID. The client ID is used to identify a single application to Google OAuth servers. Press "API and servises" — "Credentials" — "Create credentials" — "OAuth client ID" — "Application app" — "Desktop app" and enter the name of your OAuth 2.0 client.
 1. Create "credentials.json" — copy the file to the root of the program project.
 
@@ -95,7 +95,6 @@ EmptyLineEditException is thrown if one of the fields in the rule creation windo
 FileExistsError thrown if:
 * token file doesn't exsist — log in to Google;
 * credentials file doesn't exsist — register as a developer in Google Console — see subsection "Before starting the program";
-* rules.csv file doesn't exsist — the file will be created automatically after;
 * the path to the folder you want to copy does not exist — select an existing folder.
 
 FileNotUploadedException thrown if in the file has not been uploaded to Google Drive — check if the Google Drive folder ID is entered correctly; try again later; check your internet connection; re-authorize by deleting the "token.pickle" file.
@@ -105,6 +104,8 @@ EmptyTimeListException thrown if in the Creation rule window, the time list is e
 NoRowSelectedInTable thrown if no row was selected to delete from table — select the row.
 
 NotExistFolderIDException thrown if Google Drive folder ID does not exsist — check the ID of folder.
+
+**If the program does not start, try deleting the token.pickle file from the program directory.**
 
 ### Recommendations
 
@@ -122,6 +123,30 @@ System Requirements:
 ## Build the project
 
 Install the latest version of [Python and Pip](https://www.python.org/).
+
+Create a [virtual environment](https://docs.python.org/uk/3.10/library/venv.html) and activate it:
+
+```
+python -m venv venv
+```
+
+For Linux (Manjaro), run:
+
+```
+. ./venv/bin/activate
+```
+
+For Windows, run:
+
+```
+.\venv\Scripts\activate.bat
+```
+
+Run:
+
+```
+pip install -r requirements.txt
+```
 
 Install pyinstaller:
 

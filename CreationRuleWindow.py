@@ -23,8 +23,8 @@ from PyQt5.QtWidgets import (
     QMessageBox
 )
 from PyQt5.QtCore import Qt
-from EmptyLineEditException import *
-from EmptyTimeListException import *
+from exception.EmptyLineEditException import *
+from exception.EmptyTimeListException import *
 
 SOURCE_DIRECTORY = "./source"
 PATH_TO_RULES_CSV = SOURCE_DIRECTORY + "/rules.csv"
@@ -72,9 +72,7 @@ class CreationRuleWindow(QDialog):
 
     # Adds unique value of the time to list.
     def addTime(self):
-        TIME_FORMAT = "HH:mm"
-
-        timeValue = self.timeEdit.time().toString(TIME_FORMAT)
+        timeValue = self.timeEdit.time().toString("HH:mm")
         
         timeList = [
             self.timeList.item(i).text() for i in range(
