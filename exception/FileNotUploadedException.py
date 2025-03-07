@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Thrown if in the file has not been uploaded to Google Drive.
+# Raises if in the file has not been uploaded to Google Drive.
 class FileNotUploadedException(Exception):
     def __init__(self):
         super().__init__(

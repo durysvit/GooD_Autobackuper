@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Thrown if no row was selected to delete.
+# Raises if no row was selected to delete.
 class NoRowSelectedInTableException(Exception):
     def __init__(self):
         super().__init__(

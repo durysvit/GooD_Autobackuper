@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         self.loadRulesToTable()
 
     # Loads rule to the table from PATH_TO_RULES_CSV.
-    # Thrown FileExistsError if PATH_TO_RULES_CSV doesn't exsist.
+    # Raises FileExistsError if PATH_TO_RULES_CSV doesn't exsist.
     def loadRulesToTable(self):
         RESET_TABLE = 0; NO_ROW_SELECTED = -1
 
@@ -176,7 +176,7 @@ class MainWindow(QMainWindow):
             self.table.setItem(rowPosition, column, QTableWidgetItem(data))
 
     # Deletes the selected rule from the table and file PATH_TO_RULES_CSV.
-    # Thrown NoRowSelectedInTable if no row was selected to delete.
+    # Raises NoRowSelectedInTable if no row was selected to delete.
     def deleteSelectedRuleFromTable(self):
         NO_ROW_SELECTED = -1; PATH_FROM_COLUMN = 0; FOLDER_ID_COLUMN = 1
         ACCOUNT_NAME_COLUMN = 2; TIME_COLUMN = 3
@@ -204,7 +204,7 @@ class MainWindow(QMainWindow):
         self.loadRulesToTable()
 
     # Deletes the selected rule from file PATH_TO_RULES_CSV.
-    # Thrown FileExistsError if PATH_TO_RULES_CSV doesn't exsist.
+    # Raises FileExistsError if PATH_TO_RULES_CSV doesn't exsist.
     def removeRuleFromRulesFile(self, pathFrom, pathTo, account, time):
         rows = []
 

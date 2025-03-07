@@ -16,13 +16,16 @@ from PyQt5.QtWidgets import (
     QDialog,
     QPushButton, 
     QVBoxLayout, 
+    QHBoxLayout,
     QLineEdit,
     QListWidget,
     QTimeEdit,
     QLabel,
-    QMessageBox
+    QMessageBox,
+    QFileDialog
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QStyle
 from exception.EmptyLineEditException import *
 from exception.EmptyTimeListException import *
 
@@ -39,6 +42,13 @@ class CreationRuleWindow(QDialog):
              ~Qt.WindowType.WindowContextHelpButtonHint)
 
         self.pathFromInput = QLineEdit()
+
+        self.browseButton = QPushButton()
+        self.browseButton.setIcon(
+            self.style().standardIcon(QStyle.SP_DirOpenIcon)
+        )
+        self.browseButton.clicked.connect(self.selectFolder)
+
         self.folderIDInput = QLineEdit()
         self.accountInput = QLineEdit()
 
@@ -55,7 +65,12 @@ class CreationRuleWindow(QDialog):
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Path from:"))
-        layout.addWidget(self.pathFromInput)
+
+        pathLayout = QHBoxLayout()
+        pathLayout.addWidget(self.pathFromInput)
+        pathLayout.addWidget(self.browseButton)
+        layout.addLayout(pathLayout)
+
         layout.addWidget(QLabel("Folder ID:"))
         layout.addWidget(self.folderIDInput)
         layout.addWidget(QLabel("Account:"))
@@ -84,9 +99,9 @@ class CreationRuleWindow(QDialog):
             self.timeList.addItem(timeValue)
 
     # Confirms, adds the rule to the file PATH_TO_RULES_CSV.
-    # Thrown EmptyLineEditInCreationRuleException if one of lineEdit is empty. 
-    # Thrown EmptyTimeListException if the time list is empty.
-    # Thrown FileExistsError if path from doesn't exsist.
+    # Raises EmptyLineEditInCreationRuleException if one of lineEdit is empty. 
+    # Raises EmptyTimeListException if the time list is empty.
+    # Raises FileExistsError if path from doesn't exsist.
     def confirmSelection(self):
         pathFrom = self.pathFromInput.text()
         folderID = self.folderIDInput.text()
@@ -172,3 +187,10 @@ class CreationRuleWindow(QDialog):
 
         for item in selectedItems:
             self.timeList.takeItem(self.timeList.row(item))
+
+    # Selects folder.
+    def selectFolder(self):
+        folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
+
+        if folderPath:
+            self.pathFromInput.setText(folderPath)

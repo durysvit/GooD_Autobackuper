@@ -40,8 +40,8 @@ class FileCopyWorker(QThread):
         self.driveService = self.connectToGoogleDrive()
 
     # Saves user authorization data for automatic authorization in the future.
-    # Thrown FileExistsError if TOKEN_FILE doesn't exsist.
-    # Thrown FileExistsError if CREDENTIAL_FILE doesn't exsist.
+    # Raises FileExistsError if TOKEN_FILE doesn't exsist.
+    # Raises FileExistsError if CREDENTIAL_FILE doesn't exsist.
     def connectToGoogleDrive(self):
         creds = None
         
@@ -119,11 +119,12 @@ class FileCopyWorker(QThread):
 
             time.sleep(ONE_MINUT_IN_SECONDS)
 
-    # Uploads files from a local directory to a Google Drive folder by its ID.
-    # Thrown FileNotUploadedException if in the file has not been uploaded to 
-    # Google Drive.
-    # Parameter source is a list of files.
-    # Parameter destinationFolderID is the destination folder ID.
+    # Uploads files from a list of file paths to a Google Drive folder by its 
+    # ID.
+    # Raises FileNotUploadedException if a file fails to upload to Google 
+    # Drive.
+    # Parameter source is a list of file paths.
+    # Parameter destinationFolderID is the ID of the destination folder.
     def uploadToGoogleDrive(self, source, destinationFolderID):
         for filename in os.listdir(source):
             filePath = os.path.join(source, filename)
@@ -132,7 +133,7 @@ class FileCopyWorker(QThread):
                 self.uploadFile(filePath, destinationFolderID)
 
     # Uploads a single file to the given Google Drive folder by its ID.
-    # Thrown FileNotUploadedException if in the file has not been uploaded to 
+    # Raises FileNotUploadedException if in the file has not been uploaded to 
     # Google Drive.
     # Parameter filePath is a file path.
     # Parameter destinationFolderID is the destination folder ID.

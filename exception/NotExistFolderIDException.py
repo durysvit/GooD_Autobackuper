@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Thrown if folder ID does not exsist.
+# Raises if folder ID does not exsist.
 class NotExistFolderIDException(Exception):
     def __init__(self, folderID):
         super().__init__(
