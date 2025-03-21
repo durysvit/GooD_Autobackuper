@@ -3,4 +3,4 @@ Disallow: /admin/
 Disallow: /private/
 Allow: /
 
-Sitemap: https://durysvit.github.io//sitemap.xml
+Sitemap: https://durysvit.github.io/GooD_Autobackuper/sitemap.xml
