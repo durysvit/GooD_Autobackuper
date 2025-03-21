@@ -1,4 +1,4 @@
-# Automatic backup information system for Google Drive - GooD Autobackuper.
+# Automated Backup System for Google Drive - GooD Autobackuper.
 #
 # Copyright (C) 2025 durysvit
 #
