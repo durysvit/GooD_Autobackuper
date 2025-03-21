@@ -14,7 +14,7 @@
 #
 # Email argnullo@gmail.com.
 #
-# Version 1.1.0.
+# Version 1.2.0.
 
 """
 This is the entry point module.
