@@ -10,12 +10,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+"""
+The class of Creation rule window.
+"""
+
 import os
 import csv
+import const.const as const
 from PyQt5.QtWidgets import (
     QDialog,
-    QPushButton, 
-    QVBoxLayout, 
+    QPushButton,
+    QVBoxLayout,
     QHBoxLayout,
     QLineEdit,
     QListWidget,
@@ -26,20 +31,22 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QStyle
-from exception.EmptyLineEditException import *
-from exception.EmptyTimeListException import *
+from exception.EmptyLineEditException import EmptyLineEditException
+from exception.EmptyTimeListException import EmptyTimeListException
 
-SOURCE_DIRECTORY = "./source"
-PATH_TO_RULES_CSV = SOURCE_DIRECTORY + "/rules.csv"
 
-# The class of creation rules of autobackup.
 class CreationRuleWindow(QDialog):
+    """
+    The class of creation rules of autobackup.
+    """
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Create rule")
 
-        self.setWindowFlags(self.windowFlags() &
-             ~Qt.WindowType.WindowContextHelpButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint
+        )
 
         self.pathFromInput = QLineEdit()
 
@@ -85,24 +92,32 @@ class CreationRuleWindow(QDialog):
 
         self.timeList.installEventFilter(self)
 
-    # Adds unique value of the time to list.
     def addTime(self):
+        """
+        Adds unique value of the time to list.
+        """
+
         timeValue = self.timeEdit.time().toString("HH:mm")
-        
+
         timeList = [
             self.timeList.item(i).text() for i in range(
                 self.timeList.count()
             )
         ]
-        
-        if timeValue not in timeList: 
+
+        if timeValue not in timeList:
             self.timeList.addItem(timeValue)
 
-    # Confirms, adds the rule to the file PATH_TO_RULES_CSV.
-    # Raises EmptyLineEditInCreationRuleException if one of lineEdit is empty. 
-    # Raises EmptyTimeListException if the time list is empty.
-    # Raises FileExistsError if path from doesn't exsist.
     def confirmSelection(self):
+        """
+        Confirms, adds the rule to the file PATH_TO_RULES_CSV.
+        Raises:
+            EmptyLineEditInCreationRuleException: raise if one of lineEdit is
+                 empty.
+            EmptyTimeListException: raise if the time list is empty.
+            FileExistsError: raise if path from doesn't exsist.
+        """
+
         pathFrom = self.pathFromInput.text()
         folderID = self.folderIDInput.text()
         account = self.accountInput.text()
@@ -121,12 +136,14 @@ class CreationRuleWindow(QDialog):
             QMessageBox.critical(
                 None,
                 "Error",
-                str(FileExistsError("FileExistsError: path from " +
-                    pathFrom + " does not exist.")),
+                str(FileExistsError(
+                    "FileExistsError: path from " + pathFrom +
+                    " does not exist."
+                )),
                 QMessageBox.Ok
             )
             return
-        elif not folderID.strip(): 
+        elif not folderID.strip():
             QMessageBox.critical(
                 None,
                 "Error",
@@ -134,7 +151,7 @@ class CreationRuleWindow(QDialog):
                 QMessageBox.Ok
             )
             return
-        elif not account.strip(): 
+        elif not account.strip():
             QMessageBox.critical(
                 None,
                 "Error",
@@ -152,17 +169,17 @@ class CreationRuleWindow(QDialog):
             return
 
         existingEntries = set()
-        
-        if not os.path.exists(SOURCE_DIRECTORY):
-            os.makedirs(SOURCE_DIRECTORY)
 
-        if os.path.exists(PATH_TO_RULES_CSV):
-            with open(PATH_TO_RULES_CSV, mode="r", newline='') as file:
+        if not os.path.exists(const.SOURCE_DIRECTORY):
+            os.makedirs(const.SOURCE_DIRECTORY)
+
+        if os.path.exists(const.PATH_TO_RULES_CSV):
+            with open(const.PATH_TO_RULES_CSV, mode='r', newline='') as file:
                 reader = csv.reader(file)
                 for row in reader:
                     existingEntries.add(tuple(row))
 
-        with open(PATH_TO_RULES_CSV, mode='a', newline='') as file:
+        with open(const.PATH_TO_RULES_CSV, mode='a', newline='') as file:
             writer = csv.writer(file)
             for time in times:
                 newEntry = (pathFrom, folderID, account, time)
@@ -171,25 +188,33 @@ class CreationRuleWindow(QDialog):
                     writer.writerow(newEntry)
                     existingEntries.add(newEntry)
 
-        self.accept() 
+        self.accept()
 
-    # Adds response to Delete key press and time selection in the table.
     def eventFilter(self, source, event):
+        """
+        Adds response to Delete key press and time selection in the table.
+        """
         if source == self.timeList and event.type() == event.KeyPress:
             if event.key() == Qt.Key_Delete:
                 self.removeSelectedTime()
 
         return super().eventFilter(source, event)
 
-    # Removes selected time from the list of the time.
     def removeSelectedTime(self):
+        """
+        Removes selected time from the list of the time.
+        """
+
         selectedItems = self.timeList.selectedItems()
 
         for item in selectedItems:
             self.timeList.takeItem(self.timeList.row(item))
 
-    # Selects folder.
     def selectFolder(self):
+        """
+        Selects folder.
+        """
+
         folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
 
         if folderPath:

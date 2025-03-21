@@ -10,7 +10,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Raises if in the Creation rule window, the time list is empty.
+"""
+The class of EmptyTimeListException.
+"""
+
+
 class EmptyTimeListException(Exception):
     def __init__(self):
+        """
+        Raises if in the Creation rule window, the time list is empty.
+        """
+
         super().__init__("EmptyTimeListException: the time list is empty.")

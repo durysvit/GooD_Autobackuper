@@ -16,16 +16,21 @@
 #
 # Version 1.1.0.
 
+"""
+This is the entry point module.
+"""
+
 import sys
 from PyQt5.QtWidgets import QApplication
-from MainWindow import *
+from window.MainWindow import MainWindow
 
-# This is the entry point. 
-if __name__ == "__main__":        
+if __name__ == "__main__":
     application = QApplication(sys.argv)
 
-    mainWindow = MainWindow()    
+    mainWindow = MainWindow()
 
     mainWindow.show()
 
-    sys.exit(application.exec_())
+    sys.exit(
+        application.exec_()
+    )

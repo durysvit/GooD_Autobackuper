@@ -10,9 +10,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Raises if one of lineEdit in Creation rule window is empty. 
+"""
+The class of EmptyLineEditException.
+"""
+
+
 class EmptyLineEditException(Exception):
     def __init__(self, lineEditName: str):
+        """
+        Raises if one of lineEdit in Creation rule window is empty.
+        """
+
         super().__init__(
-            "EmptyLineEditException: " + lineEditName +  " lineEdit is empty."
+            "EmptyLineEditException: " + lineEditName + " lineEdit is empty."
         )

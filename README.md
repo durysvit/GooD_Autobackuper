@@ -8,15 +8,15 @@
 
 ## About program
 
-Automatic backup information system for Google Drive — GooD Autobackuper.
+An automated backup system for Google Drive — GooD Autobackuper.
 
-Version 1.1.0.
+Version 1.2.0.
 
 ## Author 
 
-Github [durysvit](https://github.com/durysvit).
+Github: [durysvit](https://github.com/durysvit).
 
-Email argnullo@gmail.com.
+Email: argnullo@gmail.com.
 
 ## Program requirements
 
@@ -24,12 +24,12 @@ Functional requirements include the following capabilities:
 * the program has a graphical interface;
 * the program starts automatically — works in the background;
 * the ability to log in to Google;
-* possibility to specify the directory from which files are copied;
+* ability to specify the directory from which files are copied;
 * the ability to specify the Google Drive directory to which files are copied;
 * the ability to set the exact time of copying files.
 
 Non-functional requirements include:
-* possibility to save authorization data;
+* ability to save authentication data
 * the ability to authorize one Google account.
 
 ## User manual
@@ -38,10 +38,16 @@ Non-functional requirements include:
 
 Create Google Cloud project:
 1. Create a project on [Google Cloud](https://console.cloud.google.com/projectcreate) — enter project name and ID.
-1. Google Cloud enable API Google­— see [Drive Python API](https://developers.google.com/drive/api/quickstart/python).
+1. Enable the Google Cloud API­— see [Drive Python API](https://developers.google.com/drive/api/quickstart/python).
 1. Configure the OAuth consent screen and add yourself as a test user: in [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent?) enable User Type — External; press "Create".
 1. Add scopes: "auth/drive" and "auth/docs".
-1. You also need to authorize credentials for the desktop application using an OAuth 2.0 client ID. The client ID is used to identify a single application to Google OAuth servers. Press "API and servises" — "Credentials" — "Create credentials" — "OAuth client ID" — "Application app" — "Desktop app" and enter the name of your OAuth 2.0 client.
+1. You also need to authorize credentials for the desktop application using an OAuth 2.0 client ID. The client ID is used to identify a single application to Google OAuth servers. Press:
+    1. "API and servises";
+    1. "Credentials";
+    1. "Create credentials";
+    1. "OAuth client ID";
+    1. "Application app";
+    1. "Desktop app" and enter the name of your OAuth 2.0 client.
 1. Create "credentials.json" — copy the file to the root of the program project.
 
 ### After starting the program
@@ -79,7 +85,7 @@ The rule consists of:
 In the main window, click the "Add" button. You will see a window to add a rule. 
 
 Add data to the appropriate fields: 
-* copy the full path to the folder and paste; 
+* select folder; 
 * copy the ID of your folder in Google Drive and paste; 
 * enter your account name;
 * add time to the list; if the time is entered incorrectly, select it and click "Delete".
@@ -92,8 +98,8 @@ When closing the program, it will be minimized to the tray. If you need to end t
 
 EmptyLineEditException is thrown if one of the fields in the rule creation window is empty — fill in all fields.  
 
-FileExistsError thrown if:
-* token file doesn't exsist — log in to Google;
+FileExistsError is thrown if:
+* the token file does not exist — log in to Google;
 * credentials file doesn't exsist — register as a developer in Google Console — see subsection "Before starting the program";
 * the path to the folder you want to copy does not exist — select an existing folder.
 
@@ -103,7 +109,7 @@ EmptyTimeListException thrown if in the Creation rule window, the time list is e
 
 NoRowSelectedInTable thrown if no row was selected to delete from table — select the row.
 
-NotExistFolderIDException thrown if Google Drive folder ID does not exsist — check the ID of folder.
+NotExistFolderIDException is thrown if the Google Drive folder ID does not exist — check the ID of folder.
 
 **If the program does not start, try deleting the token.pickle file from the program directory.**
 
