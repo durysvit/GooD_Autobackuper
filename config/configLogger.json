@@ -1,0 +1,7 @@
+{
+  "logPath": "log/application.log",
+  "rotation": "10 MB",
+  "mode": "a",
+  "level": "INFO",
+  "format": "{time} | {level} | {message}"
+}

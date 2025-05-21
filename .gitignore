@@ -1,20 +1,33 @@
+# star files
 *.zip
 *.spec
 *.exe
 
+# dot files
+.pre-commit-config.yml
+.flake8
+
+# files
 GooD_Autobackuper
 bandit_report.html
-.flake8
-token.pickle
+token.json
 credentials.json
+rules.csv
+application.log
 
+# dot folders
 .vscode/
 .git/
 .mypy_cache/
+
+# folders
 __pycache__/
 venv/
 test/
-source/
+data/
 dist/
 build/
 test/
+backup/
+docs/
+log/

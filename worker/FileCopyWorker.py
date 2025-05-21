@@ -10,156 +10,156 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""
-The class of file copy worker.
-"""
+"""Module containing the FileCopyWorker class."""
 
 import os
 import time
 import datetime
-import pickle
-import const.const as const
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
-from exception.FileNotUploadedException import FileNotUploadedException
-from exception.NotExistFolderIDException import NotExistFolderIDException
+from google.auth.exceptions import RefreshError
+from google.oauth2.credentials import Credentials
+from util.displayCriticalMessage import displayCriticalMessage
+from logger.logger import logger
+from const.const import TOKEN_FILE, CREDENTIALS_FILE, SCOPES
+from exception.exceptions import (
+    FileNotUploadedException,
+    FolderIDDoesNotExistException,
+    TokenFileDoesNotExistException,
+    CredentialsFileDoesNotExistException,
+    TokenFileIsExpiredOrRevokedException,
+    ListOfRulesIsEmptyException,
+    ListOfRulesIsNoneException
+)
 
 
 class FileCopyWorker(QThread):
-    """
-    The class of Google Drive worker.
-    """
-
+    """The class of Google Drive worker."""
     updateSignal = pyqtSignal()
 
-    def __init__(self, rules):
+    def __init__(self, rules: list):
         """
         Args:
-            rules: is a list of rules.
+            rules: list of rules.
+        Raises:
+            ListOfRulesIsNoneException: raise if the list of rules is None.
+            ListOfRulesIsEmptyException: raise if the list of rules is empty.
+            TokenFileIsExpiredOrRevokedException: raise if token file is
+            expired or revoked. This exception is caught and logged internally.
         """
-
         super().__init__()
-        self.rules = rules  # Can be empty.
-        self.driveService = self.connectToGoogleDrive()
+        try:
+            self.driveService = self.__connectToGoogleDrive()
+        except RefreshError:
+            message = str(TokenFileIsExpiredOrRevokedException())
+            logger.error(message)
+            displayCriticalMessage(message)
+            return
+        if rules is None:
+            raise ListOfRulesIsNoneException()
+        if not rules:
+            raise ListOfRulesIsEmptyException()
 
-    def connectToGoogleDrive(self):
+        self.rules = rules
+
+    def __connectToGoogleDrive(self) -> None:
         """
         Saves user authorization data for automatic authorization in the
         future.
         Raises:
-            FileExistsError: raise if TOKEN_FILE doesn't exsist.
-            FileExistsError: raise if CREDENTIAL_FILE doesn't exsist.
+            TokenFileDoesNotExistException: raise if TOKEN_FILE doesn't exist.
+            CredentialsFileDoesNotExistException: raise if CREDENTIAL_FILE
+            doesn't exist.
         """
-
         creds = None
-
-        if os.path.exists(const.TOKEN_FILE):
-            with open(const.TOKEN_FILE, "rb") as token:
-                creds = pickle.load(token)
+        if os.path.exists(TOKEN_FILE):
+            creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
         else:
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(FileExistsError(
-                    "FileExistsError: " + const.TOKEN_FILE +
-                    " does not exsist."
-                )),
-                QMessageBox.Ok
-            )
-
-        if not os.path.exists(const.CREDENTIALS_FILE):
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(FileExistsError(
-                    "FileExistsError: " + const.CREDENTIALS_FILE +
-                    " does not exsist."
-                )),
-                QMessageBox.Ok
-            )
-            return
-
+            logger.error(TokenFileDoesNotExistException())
+        if not os.path.exists(CREDENTIALS_FILE):
+            logger.error(CredentialsFileDoesNotExistException())
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    const.CREDENTIALS_FILE,
-                    const.SCOPES
+                    CREDENTIALS_FILE,
+                    SCOPES
                 )
                 creds = flow.run_local_server(port=0)
-
-            with open(const.TOKEN_FILE, "wb") as token:
-                pickle.dump(creds, token)
-
+            with open(TOKEN_FILE, "w") as token:
+                token.write(creds.to_json())
         driveService = build("drive", "v3", credentials=creds)
         return driveService
 
-    def run(self):
-        """
-        Checks the time to start copying.
-        """
-
-        while True:
-            now = datetime.datetime.now()
-            nowStr = now.strftime("%H:%M:%S")
-
+    def run(self) -> None:
+        """Checks the time to start copying."""
+        while True:  # replace True
             for rule in self.rules:
-                pathFrom, folderID, Account, timeToCopy = rule
+                pathFrom, folderID, Account, timeToCopy, weekday, dayOfMonth \
+                    = rule
+
+                now = datetime.datetime.now()
+                currentWeekday = now.strftime("%A")
+                currentDayOfMonth = now.day
+                currentTimeStr = now.strftime("%H:%M")
+
+                targetTimeStr = datetime.datetime.strptime(
+                    timeToCopy,
+                    "%H:%M"
+                ).strftime("%H:%M")
+
                 targetTime = datetime.datetime.strptime(timeToCopy, "%H:%M")
                 targetTimeStr = targetTime.strftime("%H:%M")
 
-                if nowStr[:5] == targetTimeStr:
-                    if os.path.exists(pathFrom):
-                        if not self.isFolderIDExists(folderID):
-                            QMessageBox.critical(
-                                None,
-                                "Error",
-                                str(NotExistFolderIDException(folderID)),
-                                QMessageBox.Ok
-                            )
-                            return
-                        self.uploadToGoogleDrive(pathFrom, folderID)
-                    else:
-                        QMessageBox.critical(
-                            None,
-                            "Error",
-                            str(FileExistsError(
-                                "FileExistsError: " + pathFrom +
-                                " does not exist."
-                            )),
-                            QMessageBox.Ok
-                        )
+                shouldCheck = True
+
+                if weekday.strip():
+                    if weekday != currentWeekday:
+                        shouldCheck = False
+
+                if dayOfMonth.strip():
+                    try:
+                        targetDay = int(dayOfMonth)
+                        if targetDay != currentDayOfMonth:
+                            shouldCheck = False
+                    except ValueError:  # Create new exception
+                        logger.error(f"Invalid dayOfMonth value: {dayOfMonth}")
+                        continue
+
+                if shouldCheck and currentTimeStr == targetTimeStr:
+                    if not self.__isFolderIDExists(folderID):
+                        message = str(FolderIDDoesNotExistException(folderID))
+                        logger.error(message)
+                        displayCriticalMessage(message)
                         return
-
+                    self.__uploadToGoogleDrive(pathFrom, folderID)
             self.updateSignal.emit()
+            WORKER_CHECK_TIME = 60
+            time.sleep(WORKER_CHECK_TIME)
 
-            time.sleep(const.ONE_MINUT_IN_SECONDS)
-
-    def uploadToGoogleDrive(self, source, destinationFolderID):
+    def __uploadToGoogleDrive(self, source: list,
+                              destinationFolderID: str) -> None:
         """
-        Uploads files from a list of file paths to a Google Drive folder by
-        its ID.
+        Uploads files from a list of file paths to a Google Drive folder by its
+         ID.
         Args:
             source: is a list of file paths.
             destinationFolderID: is the ID of the destination folder.
         Raises:
             FileNotUploadedException: raise if a file fails to upload to
-                 Google Drive.
+            Google Drive.
         """
-
         for filename in os.listdir(source):
             filePath = os.path.join(source, filename)
-
             if os.path.isfile(filePath):
-                self.uploadFile(filePath, destinationFolderID)
+                self.__uploadFile(filePath, destinationFolderID)
 
-    def uploadFile(self, filePath, destinationFolderID):
+    def __uploadFile(self, filePath: str, destinationFolderID: str) -> None:
         """
         Uploads a single file to the given Google Drive folder by its ID.
         Args:
@@ -167,53 +167,48 @@ class FileCopyWorker(QThread):
             destinationFolderID: is the destination folder ID.
         Raises:
             FileNotUploadedException: raise if in the file has not been
-                 uploaded to Google Drive.
+            uploaded to Google Drive.
         """
-
         fileMetadata = {
-            'name': os.path.basename(filePath),
-            'parents': [destinationFolderID]
+            "name": os.path.basename(filePath),
+            "parents": [destinationFolderID]
         }
-
-        media = MediaFileUpload(filePath, mimetype='application/octet-stream')
-
+        media = MediaFileUpload(filePath, mimetype="application/octet-stream")
         try:
             self.driveService.files().create(
                 body=fileMetadata,
                 media_body=media,
-                fields='id'
+                fields="id"
             ).execute()
         except HttpError as exception:
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(FileNotUploadedException() + exception),
-                QMessageBox.Ok
-            )
+            message = str(FileNotUploadedException() + exception)
+            logger.error(message)
+            displayCriticalMessage(message)
+            return
+        except Exception as exception:
+            logger.error(exception)
+            displayCriticalMessage(exception)
+            return
 
-    def isFolderIDExists(self, folderID):
+    def __isFolderIDExists(self, folderID: str) -> bool:
         """
         Checks whether a folder with a given ID exists.
         Args:
             folderID: is the Google Drive folder ID.
+        Raises:
+            HttpError: raise if ...
         """
-
         try:
             fileMetadata = self.driveService.files().get(
                 fileId=folderID,
-                fields='id, name, mimeType'
+                fields="id, name, mimeType"
             ).execute()
-
-            if fileMetadata.get("mimeType") == "application/" + \
-                    "vnd.google-apps.folder":
+            MIME_TYPE = "application/vnd.google-apps.folder"
+            if fileMetadata.get("mimeType") == MIME_TYPE:
                 return True
             else:
                 return False
-        except HttpError as error:
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(error),
-                QMessageBox.Ok
-            )
+        except HttpError as exception:
+            logger.error(exception)
+            displayCriticalMessage(exception)
             return False

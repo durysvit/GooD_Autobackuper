@@ -14,23 +14,23 @@
 #
 # Email argnullo@gmail.com.
 #
-# Version 1.2.0.
+# Version 1.5.0.
 
-"""
-This is the entry point module.
-"""
+"""Module containing the entry point."""
 
 import sys
 from PyQt5.QtWidgets import QApplication
 from window.MainWindow import MainWindow
+from logger.logger import logger
 
 if __name__ == "__main__":
+    logger.info("Start an application.")
+
     application = QApplication(sys.argv)
 
     mainWindow = MainWindow()
-
     mainWindow.show()
 
-    sys.exit(
-        application.exec_()
-    )
+    logger.info("End the application.")
+
+    sys.exit(application.exec_())

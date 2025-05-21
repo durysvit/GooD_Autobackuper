@@ -10,16 +10,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+"""Module containing the constants."""
+
 import os
 
 ICON_FILE = "GooD_Autobackuper.svg"
-
-SOURCE_DIRECTORY = "./source"
-PATH_TO_RULES_CSV = os.path.join(SOURCE_DIRECTORY, "rules.csv")
-
-ONE_MINUT_IN_SECONDS = 60
-
+DATA_DIRECTORY = "./data"
+RULES_FILE = os.path.join(DATA_DIRECTORY, "rules.csv")
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-
-TOKEN_FILE = "token.pickle"
+TOKEN_FILE = "token.json"
 CREDENTIALS_FILE = "credentials.json"
+LOGGER_CONFIG_FILE = "./config/configLogger.json"

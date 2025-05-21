@@ -10,18 +10,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""
-The class of NotExistFolderIDException.
-"""
+from PyQt5.QtWidgets import QMessageBox
 
 
-class NotExistFolderIDException(Exception):
-    def __init__(self, folderID):
-        """
-        Raises if folder ID does not exsist.
-        """
-
-        super().__init__(
-            "NotExistFolderIDException: " + folderID + " folder ID does not"
-            " exist"
-        )
+def displayCriticalMessage(exceptionMessage: str) -> None:
+    """
+    Displays a critical message box with the exception message.
+    Args:
+        exceptionMessage (str): is an exception message.
+    """
+    QMessageBox.critical(
+        None,
+        "Error",
+        exceptionMessage,
+        QMessageBox.Ok
+    )

@@ -10,17 +10,24 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""
-The class of EmptyLineEditException.
-"""
+"""Module containing the logger settings."""
 
+import os
+import json
+from loguru import logger
+from const.const import LOGGER_CONFIG_FILE
 
-class EmptyLineEditException(Exception):
-    def __init__(self, lineEditName: str):
-        """
-        Raises if one of lineEdit in Creation rule window is empty.
-        """
+with open(LOGGER_CONFIG_FILE, "r") as loggerConfigFile:
+    loggerConfig = json.load(loggerConfigFile)
 
-        super().__init__(
-            "EmptyLineEditException: " + lineEditName + " lineEdit is empty."
-        )
+os.makedirs(os.path.dirname(loggerConfig["logPath"]), exist_ok=True)
+
+logger.remove()
+
+logger.add(
+    loggerConfig["logPath"],
+    rotation=loggerConfig["rotation"],
+    mode=loggerConfig["mode"],
+    level=loggerConfig["level"],
+    format=loggerConfig["format"]
+)

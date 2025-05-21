@@ -10,14 +10,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""
-Class of main window.
-"""
+"""Module containing the MainWindow class."""
 
 import os
 import csv
-import const.const as const
-from PyQt5.QtCore import QTimer
+# import Rule
+from PyQt5.QtCore import QTimer, QEvent
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
@@ -31,25 +29,36 @@ from PyQt5.QtWidgets import (
     QMenu,
     QAction,
     QDesktopWidget,
-    QMessageBox,
     QHeaderView,
     QSizePolicy,
     QSystemTrayIcon
 )
 from worker.FileCopyWorker import FileCopyWorker
 from window.CreationRuleWindow import CreationRuleWindow
-from exception.NoRowSelectedInTableException import (
-    NoRowSelectedInTableException
+from util.displayCriticalMessage import displayCriticalMessage
+from logger.logger import logger
+from const.const import (
+    ICON_FILE,
+    TOKEN_FILE,
+    DATA_DIRECTORY,
+    RULES_FILE
+)
+from exception.exceptions import (
+    NoRowSelectedInTableException,
+    TokenFileDoesNotExistException,
+    ListOfRulesIsNoneException,
+    ListOfRulesIsEmptyException,
+    PathToRulesFileDoesNotExistException
 )
 
 
 class MainWindow(QMainWindow):
     """The class of main window."""
-
     def __init__(self):
+        """Initialize the main window."""
         super().__init__()
         self.setWindowTitle("GooD Autobackuper")
-        self.setWindowIcon(QIcon(const.ICON_FILE))
+        self.setWindowIcon(QIcon(ICON_FILE))
 
         centralWidget = QWidget()
         mainLayout = QVBoxLayout(centralWidget)
@@ -57,7 +66,7 @@ class MainWindow(QMainWindow):
         buttonsLayout = QHBoxLayout()
 
         self.trayIcon = QSystemTrayIcon(self)
-        self.trayIcon.setIcon(QIcon(const.ICON_FILE))
+        self.trayIcon.setIcon(QIcon(ICON_FILE))
 
         trayMenu = QMenu()
 
@@ -70,12 +79,19 @@ class MainWindow(QMainWindow):
 
         self.trayIcon.activated.connect(self.iconClicked)
 
-        NUMBER_OF_COLUMNS = 4
-        NUMBER_OF_ROWS = 0
+        deleteTokenFileAction = QAction("&Delete token file", self)
+        deleteTokenFileAction.triggered.connect(self.__deleteTokenFile)
+        deleteTokenFileMenuPoint = QMenu("File", self)
+        deleteTokenFileMenuPoint.addAction(deleteTokenFileAction)
+        menuBar = self.menuBar()
+        menuBar.addMenu(deleteTokenFileMenuPoint)
 
+        NUMBER_OF_COLUMNS = 6
+        NUMBER_OF_ROWS = 0
         self.table = QTableWidget(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS)
         self.table.setHorizontalHeaderLabels(
-            ["Path from", "Folder ID", "Account", "Time"]
+            ["Path from", "Folder ID", "Account", "Time", "Weekday",
+                "Day of month"]
         )
 
         header = self.table.horizontalHeader()
@@ -89,7 +105,9 @@ class MainWindow(QMainWindow):
         deleteSelectedButton = QPushButton("&Delete")
 
         addButton.clicked.connect(self.addRuleToRulesFile)
-        deleteSelectedButton.clicked.connect(self.deleteSelectedRuleFromTable)
+        deleteSelectedButton.clicked.connect(
+            self.__deleteSelectedRuleFromTable
+        )
 
         buttonsLayout.addWidget(deleteSelectedButton)
         buttonsLayout.addWidget(addButton)
@@ -99,212 +117,201 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(centralWidget)
 
-        self.resizeWindowInHalfOfScreen()
-        self.centerWindow()
+        self.__resizeWindowInHalfOfScreen()
+        self.__centerWindow()
         self.loadRulesToTable()
 
-        self.rules = self.loadRulesForDrive()
+        self.rules = list(self.__loadRulesForDrive())
 
-        self.fileCopyWorker = FileCopyWorker(self.rules)
-        self.fileCopyWorker.updateSignal.connect(self.loadRulesToTable)
-        self.fileCopyWorker.start()
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.loadRulesToTable)
+        try:
+            self.fileCopyWorker = FileCopyWorker(self.rules)
+            self.fileCopyWorker.updateSignal.connect(self.loadRulesToTable)
+            self.fileCopyWorker.start()
+        except ListOfRulesIsNoneException:
+            logger.error(str(ListOfRulesIsNoneException()))
+        except ListOfRulesIsEmptyException:
+            logger.error(str(ListOfRulesIsEmptyException()))
 
         ONE_SECOND_IN_MILLISECONDS = 1000
-
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.loadRulesToTable)
         self.timer.start(ONE_SECOND_IN_MILLISECONDS)
 
-    def resizeWindowInHalfOfScreen(self):
+    def __resizeWindowInHalfOfScreen(self) -> None:
         """Resizes the window to half the screen size."""
-
         screen = QDesktopWidget().screenGeometry()
 
         HALF_SCREEN = 2
-
         halfOfScreenByWidth = screen.width() // HALF_SCREEN
         halfOfScreenByHeight = screen.height() // HALF_SCREEN
 
         NO_MOVE = 0
+        self.setGeometry(NO_MOVE, NO_MOVE, halfOfScreenByWidth,
+                         halfOfScreenByHeight)
 
-        self.setGeometry(
-            NO_MOVE,
-            NO_MOVE,
-            halfOfScreenByWidth,
-            halfOfScreenByHeight
-        )
-
-    def centerWindow(self):
+    def __centerWindow(self) -> None:
         """Centers the window in screen."""
-
         frameGeometry = self.frameGeometry()
-
         frameGeometry.moveCenter(QDesktopWidget().availableGeometry().center())
-
         self.move(frameGeometry.topLeft())
 
-    def addRuleToRulesFile(self):
-        """Adds a rule to the PATH_TO_RULES_CSV."""
-
+    def addRuleToRulesFile(self) -> None:
+        """Adds a rule to the RULES_FILE."""
         creationRuleWindow = CreationRuleWindow()
-
         creationRuleWindow.exec_()
-
         self.loadRulesToTable()
 
-    def loadRulesToTable(self):
+    def loadRulesToTable(self) -> None:
         """
-        Loads rule to the table from PATH_TO_RULES_CSV.
+        Loads rule to the table from RULES_FILE.
         Raises:
-            FileExistsError: raise if PATH_TO_RULES_CSV doesn't exsist.
+            FileExistsError: raise if RULES_FILE doesn't exist.
         """
-
         selectedRow = self.table.currentRow()
-
         RESET_TABLE = 0
-
         self.table.setRowCount(RESET_TABLE)
-
-        if not os.path.exists(const.SOURCE_DIRECTORY):
-            os.makedirs(const.SOURCE_DIRECTORY)
-
-        if not os.path.exists(const.PATH_TO_RULES_CSV):
-            with open(const.PATH_TO_RULES_CSV, 'w') as file:
+        if not os.path.exists(DATA_DIRECTORY):
+            os.makedirs(DATA_DIRECTORY)
+        if not os.path.exists(RULES_FILE):  # os.create_dir()
+            with open(RULES_FILE, "w") as file:
                 pass
-
             return
-
-        with open(const.PATH_TO_RULES_CSV, mode="r", newline='') as file:
+        with open(RULES_FILE, mode='r', newline='') as file:
             reader = csv.reader(file)
-
             for row in reader:
-                self.addRuleToTable(row)
-
+                self.__addRuleToTable(row)
         NO_ROW_SELECTED = -1
-
         if selectedRow != NO_ROW_SELECTED:
             self.table.selectRow(selectedRow)
 
-    def addRuleToTable(self, row):
+    def __addRuleToTable(self, row: list) -> None:  # Is it a list?
         """
         Adds rule to the table.
         Args:
-            row: row consists of strings like "pathFrom,folderID,account,
-                time".
+            row: row consists of strings like "pathFrom,folderID,account,time".
         """
-
         rowPosition = self.table.rowCount()
-
         self.table.insertRow(rowPosition)
-
         for column, data in enumerate(row):
             self.table.setItem(rowPosition, column, QTableWidgetItem(data))
 
-    def deleteSelectedRuleFromTable(self):
+    def __deleteSelectedRuleFromTable(self) -> None:
         """
-        Deletes the selected rule from the table and file PATH_TO_RULES_CSV.
+        Deletes the selected rule from the table and file RULES_FILE.
         Raises:
             NoRowSelectedInTable: raise if no row was selected to delete.
         """
-
         selectedRow = self.table.currentRow()
 
         NO_ROW_SELECTED = -1
-
         if selectedRow == NO_ROW_SELECTED:
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(NoRowSelectedInTableException()),
-                QMessageBox.Ok
-            )
+            message = str(NoRowSelectedInTableException())
+            logger.error(message)
+            displayCriticalMessage(message)
             return
 
         PATH_FROM_COLUMN = 0
         FOLDER_ID_COLUMN = 1
         ACCOUNT_NAME_COLUMN = 2
         TIME_COLUMN = 3
+        WEEKDAY_COLUMN = 4
+        DAY_OF_MONTH_COLUMN = 5
+
+        # rule = Rule( # Rule week and Rule month
+
+        # )
 
         pathFrom = self.table.item(selectedRow, PATH_FROM_COLUMN).text()
-        pathTo = self.table.item(selectedRow, FOLDER_ID_COLUMN).text()
+        folderID = self.table.item(selectedRow, FOLDER_ID_COLUMN).text()
         account = self.table.item(selectedRow, ACCOUNT_NAME_COLUMN).text()
         time = self.table.item(selectedRow, TIME_COLUMN).text()
+        weekday = self.table.item(selectedRow, WEEKDAY_COLUMN).text()
+        dayOfMonth = self.table.item(selectedRow, DAY_OF_MONTH_COLUMN).text()
 
         self.table.removeRow(selectedRow)
-
-        self.removeRuleFromRulesFile(pathFrom, pathTo, account, time)
-
+        self.__removeRuleFromRulesFile(
+            pathFrom, folderID, account, time, weekday, dayOfMonth
+        )
         self.loadRulesToTable()
 
-    def removeRuleFromRulesFile(self, pathFrom, pathTo, account, time):
+    def __removeRuleFromRulesFile(self, pathFrom: str, folderID: str,
+                                  account: str, time: str, weekday: str,
+                                  dayOfMonth: str) -> None:
         """
-        Deletes the selected rule from file PATH_TO_RULES_CSV.
+        Deletes the selected rule from file RULES_FILE.
+        Args:
+            pathFrom (str): source path to copy from.
+            folderID (str): target Google Drive folder ID.
+            account (str): associated account name.
+            time (str): time when the rule should be triggered.
+            weekday (str): weekday when the rule should be triggered.
+            dayOfMonth (str): day of month when the rule should be triggered.
         Raises:
-            FileExistsError: raise if PATH_TO_RULES_CSV doesn't exsist.
+            FileExistsError: raise if RULES_FILE doesn't exist.
         """
-
         rows = []
-
-        if not os.path.exists(const.PATH_TO_RULES_CSV):
-            QMessageBox.critical(
-                None,
-                "Error",
-                str(FileExistsError("FileExistsError: " +
-                    const.PATH_TO_RULES_CSV +
-                    " does not exsist.")),
-                QMessageBox.Ok
-            )
+        listOfAttributes = [pathFrom, folderID, account, time, weekday,
+                            dayOfMonth]
+        if not os.path.exists(RULES_FILE):  # REMOVE
+            message = str(PathToRulesFileDoesNotExistException())
+            logger.error(message)
+            displayCriticalMessage(message)
             return
-
-        with open(const.PATH_TO_RULES_CSV, mode='r', newline='') as file:
+        with open(RULES_FILE, mode='r', newline='') as file:
             reader = csv.reader(file)
             for row in reader:
-                if row != [pathFrom, pathTo, account, time]:
+                if row != listOfAttributes:
                     rows.append(row)
-
-        with open(const.PATH_TO_RULES_CSV, mode='w', newline='') as file:
+        with open(RULES_FILE, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(rows)
 
-    def loadRulesForDrive(self):
+    def __loadRulesForDrive(self) -> list:
         """
         Loads rules into a list.
         Returns:
             list: list of rules.
         """
-
         rules = []
-
-        if os.path.exists(const.PATH_TO_RULES_CSV):
-            with open(const.PATH_TO_RULES_CSV, mode='r', newline='') as file:
+        if os.path.exists(RULES_FILE):
+            with open(RULES_FILE, mode='r', newline='') as file:
                 reader = csv.reader(file)
-
                 for row in reader:
                     rules.append(row)
-
         return rules
 
-    def closeApplication(self):
-        """
-        Ends the program.
-        """
-
+    def closeApplication(self) -> None:
+        """Ends the program."""
         QApplication.quit()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QEvent) -> None:
         """
         Hides the program when the program is closed.
+        Args:
+            event (QEvent): hides event.
         """
-
         event.ignore()
         self.hide()
 
-    def iconClicked(self, reason):
+    def iconClicked(self, reason) -> None:
         """
         Opens the window.
+        Args:
+            reason (...): ...
         """
-
         if reason == QSystemTrayIcon.Trigger:
             self.show()
             self.activateWindow()
+
+    def __deleteTokenFile(self) -> None:
+        """Deletes token.pickle if it exists."""
+        if os.path.exists(TOKEN_FILE):
+            os.remove(TOKEN_FILE)
+            message = TOKEN_FILE + " is deleted."
+            logger.info(message)
+            displayCriticalMessage(message)
+        else:
+            message = str(TokenFileDoesNotExistException())
+            logger.info(message)
+            displayCriticalMessage(message)
+            pass

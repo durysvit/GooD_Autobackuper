@@ -8,9 +8,9 @@
 
 ## About program
 
-An automated backup system for Google Drive — GooD Autobackuper.
+An Automated Backup System for Google Drive — GooD Autobackuper.
 
-Version 1.2.0.
+Version 1.5.0.
 
 ## Author 
 
@@ -21,16 +21,68 @@ Email: argnullo@gmail.com.
 ## Program requirements
 
 Functional requirements include the following capabilities:
-* the program has a graphical interface;
-* the program starts automatically — works in the background;
-* the ability to log in to Google;
-* ability to specify the directory from which files are copied;
-* the ability to specify the Google Drive directory to which files are copied;
-* the ability to set the exact time of copying files.
+* The user can launch the application with a graphical user interface;
+* The user must authorize with Google to use the application;
+* The application should support automatic reauthorization with Google;
+* The user must register a project in the Google Cloud Console;
+* The application requires two files to operate: token.json for user authorization and credentials.json for developer access;
+* The main window of the application "GooD Autobackuper" must include;
+    A table displaying user-defined rules from the modal form window.
+    An Add button to add a new rule.
+    A Delete button to remove a selected rule.
+    A File menu with an option to delete the token file (Delete token file).
+* The user can create backup rules through a dedicated modal window called Creation Rule, which includes;
+    - A read-only field displaying the full path to the source directory to be backed up;
+    - A button (with a folder icon) to open the directory chooser;
+    - A field to enter the Google Drive folder ID where files will be copied;
+    - A field to enter the Google account name (label);
+    - A time picker widget;
+    - A list of unique time entries when the backup should occur;
+    - A button to add a time to the list;
+    - A dropdown list with days of the week;
+    - A dropdown list with days of the month;
+    - A Confirm button to create the rule;
+* Rule creation requires specifying;
+    - A source directory to copy files from;
+    - A destination Google Drive folder ID;
+    - An exact time for the backup;
+    - Optionally, a specific day of the week or day of the month;
+* The application must display appropriate error messages in the following cases;
+    - Empty source directory path;
+    - Empty Google Drive folder ID;
+    - Empty account label field;
+    - Empty list of scheduled times;
+    - Files failed to copy to the cloud storage;
+    - credentials.json file is missing;
+    - token.json file is missing, expired, or revoked;
+    - No rule selected in the table when trying to delete;
+    - Application is unable to upload files to Google Drive;
+    - The specified Google Drive folder ID does not exist;
+    - And other similar critical failures;
+* The user can delete an existing rule;
+* When the main window is closed, the application should minimize to the system tray and continue running in the background;
+* The application must terminate when the Exit button in the tray menu is clicked (via right-click on the tray icon);
+* The application must have an icon/emblem.
 
 Non-functional requirements include:
-* ability to save authentication data
-* the ability to authorize one Google account.
+* The application stores authorization data and developer credentials in token.json and credentials.json, respectively;
+* The application starts automatically and runs in the background;
+* Authorization data is stored in a file to support automatic login;
+* The user can authorize only one Google account;
+* Backup times must be specified in the "HH:MM" format;
+* The application saves the following data in a CSV file:
+    - Source directory path;
+    - Destination Google Drive folder ID;
+    - Exact backup time;
+    - Optionally, day of the week or day of the month;
+* The Google Drive folder is identified by an ID — a hash value at the end of the URL after https://drive.google.com/drive/folders/;
+* The source directory must be provided as an absolute path in the file system;
+* The application is guaranteed to work on Windows 11 and Manjaro Linux 6.11;
+* The application icon must be in SVG vector format.
+
+### Out of scopes
+
+The program does not take into account that your Google Drive has little or no memory; it also does not take into account an unstable or poor connection.
 
 ## User manual
 
@@ -96,22 +148,18 @@ When closing the program, it will be minimized to the tray. If you need to end t
 
 ### Problem solving
 
-EmptyLineEditException is thrown if one of the fields in the rule creation window is empty — fill in all fields.  
+Exceptions:
+* ...LineEditIsEmptyException — Path from, Folder ID, Account — raises if one of the fields in the rule creation window is empty — fill in all fields;
+* TokenFileDoesNotExistException — raises if the token file does not exist — log in to Google;
+* CredentialsFileDoesNotExistException — raises if credentials file doesn't exist  — register as a developer in Google Console — see subsection "Before starting the program";
+* FileNotUploadedException — raises if in the file has not been uploaded to Google Drive — check if the Google Drive folder ID is entered correctly; try again later; check your internet connection; re-authorize by deleting the "token.json" file;
+* EmptyTimeListException — raises if in the Creation rule window, the time list is empty — complete the list with time;
+* NoRowSelectedInTable — raises if no row was selected to delete from table — select the row;
+* NotExistFolderIDException — raises if the Google Drive folder ID does not exist — check the ID of folder.
+* TokenFileIsExpiredOrRevokedException — raises if token file is expired or revoked — try delete token file and authorise again;
+* etc.
 
-FileExistsError is thrown if:
-* the token file does not exist — log in to Google;
-* credentials file doesn't exsist — register as a developer in Google Console — see subsection "Before starting the program";
-* the path to the folder you want to copy does not exist — select an existing folder.
-
-FileNotUploadedException thrown if in the file has not been uploaded to Google Drive — check if the Google Drive folder ID is entered correctly; try again later; check your internet connection; re-authorize by deleting the "token.pickle" file.
-
-EmptyTimeListException thrown if in the Creation rule window, the time list is empty — complete the list with time.
-
-NoRowSelectedInTable thrown if no row was selected to delete from table — select the row.
-
-NotExistFolderIDException is thrown if the Google Drive folder ID does not exist — check the ID of folder.
-
-**If the program does not start, try deleting the token.pickle file from the program directory.**
+**If the app does not start, try deleting the token.json file from the program directory and restart the app (from tray).**
 
 ### Recommendations
 
@@ -130,19 +178,19 @@ System Requirements:
 
 Install the latest version of [Python and Pip](https://www.python.org/).
 
-Create a [virtual environment](https://docs.python.org/uk/3.10/library/venv.html) and activate it:
+Create a [virtual environment](https://docs.python.org/uk/3.10/library/venv.html):
 
 ```
 python -m venv venv
 ```
 
-For Linux (Manjaro), run:
+Activate the virtual env. for Linux (Manjaro) run:
 
 ```
 . ./venv/bin/activate
 ```
 
-For Windows, run:
+and for Windows run:
 
 ```
 .\venv\Scripts\activate.bat
@@ -152,12 +200,6 @@ Run:
 
 ```
 pip install -r requirements.txt
-```
-
-Install pyinstaller:
-
-```
-pip install pyinstaller
 ```
 
 Assemble the project:
