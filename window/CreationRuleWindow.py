@@ -136,17 +136,17 @@ class CreationRuleWindow(QDialog):
             displayCriticalMessage(message)
             return
         elif not self.folderIDInput.text().strip():
-            message = str(FolderIDLineEditIsEmptyException()),
+            message = str(FolderIDLineEditIsEmptyException())
             logger.error(message)
             displayCriticalMessage(message)
             return
         elif not self.accountInput.text().strip():
-            message = str(AccountLineEditIsEmptyException()),
+            message = str(AccountLineEditIsEmptyException())
             logger.error(message)
             displayCriticalMessage(message)
             return
         elif self.timeList.count() == 0:
-            message = str(TimeListIsEmptyException()),
+            message = str(TimeListIsEmptyException())
             logger.error(message)
             displayCriticalMessage(message)
             return

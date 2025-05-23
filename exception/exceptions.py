@@ -173,8 +173,7 @@ class DayOfMonthOutOfRangeException(Exception):
 class PathFromLineEditIsEmptyException(Exception):
     def __init__(self):
         """
-        Raises if in the Creation rule window the path from line edit is
-        empty.
+        Raises if in the Creation rule window the path from line edit is empty.
         """
         super().__init__(
             "PathFromLineEditIsEmptyException: the path from line edit is " +

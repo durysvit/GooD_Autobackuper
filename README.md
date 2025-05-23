@@ -26,12 +26,12 @@ Functional requirements include the following capabilities:
 * The application should support automatic reauthorization with Google;
 * The user must register a project in the Google Cloud Console;
 * The application requires two files to operate: token.json for user authorization and credentials.json for developer access;
-* The main window of the application "GooD Autobackuper" must include;
-    A table displaying user-defined rules from the modal form window.
-    An Add button to add a new rule.
-    A Delete button to remove a selected rule.
-    A File menu with an option to delete the token file (Delete token file).
-* The user can create backup rules through a dedicated modal window called Creation Rule, which includes;
+* The main window of the application "GooD Autobackuper" must include:
+    - A table displaying user-defined rules from the modal form window.
+    - An Add button to add a new rule.
+    - A Delete button to remove a selected rule.
+    - A File menu with an option to delete the token file (Delete token file).
+* The user can create backup rules through a dedicated modal window called Creation Rule, which includes:
     - A read-only field displaying the full path to the source directory to be backed up;
     - A button (with a folder icon) to open the directory chooser;
     - A field to enter the Google Drive folder ID where files will be copied;
@@ -42,12 +42,12 @@ Functional requirements include the following capabilities:
     - A dropdown list with days of the week;
     - A dropdown list with days of the month;
     - A Confirm button to create the rule;
-* Rule creation requires specifying;
+* Rule creation requires specifying:
     - A source directory to copy files from;
     - A destination Google Drive folder ID;
     - An exact time for the backup;
-    - Optionally, a specific day of the week or day of the month;
-* The application must display appropriate error messages in the following cases;
+    - Optionally, a specific day of the week or day of the month.
+* The application must display appropriate error messages in the following cases:
     - Empty source directory path;
     - Empty Google Drive folder ID;
     - Empty account label field;
@@ -58,7 +58,7 @@ Functional requirements include the following capabilities:
     - No rule selected in the table when trying to delete;
     - Application is unable to upload files to Google Drive;
     - The specified Google Drive folder ID does not exist;
-    - And other similar critical failures;
+    - And other similar critical failures.
 * The user can delete an existing rule;
 * When the main window is closed, the application should minimize to the system tray and continue running in the background;
 * The application must terminate when the Exit button in the tray menu is clicked (via right-click on the tray icon);
@@ -132,7 +132,8 @@ The rule consists of:
 * the full path to your directory on your computer that needs to be copied;
 * the Google Drive folder ID, which is located at the end of the folder link after https://drive.google.com/drive/folders/;
 * the account name; 
-* and the time when you need to make a copy.
+* the time when you need to make a copy;
+* and optional: the weekday or the number of the month.
 
 In the main window, click the "Add" button. You will see a window to add a rule. 
 
@@ -140,7 +141,8 @@ Add data to the appropriate fields:
 * select folder; 
 * copy the ID of your folder in Google Drive and paste; 
 * enter your account name;
-* add time to the list; if the time is entered incorrectly, select it and click "Delete".
+* add time to the list; if the time is entered incorrectly, select it and click "Delete";
+* and optional: select the weekday or the day of the month.
 
 If you need to delete this rule from the table, then select it in the table and click the "Delete" button.
 
