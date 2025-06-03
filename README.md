@@ -86,6 +86,8 @@ The program does not take into account that your Google Drive has little or no m
 
 ## User manual
 
+**IMPORTANT**: Once or twice a month you will have to re-authorize, as Google revokes it.
+
 ### Before starting the program
 
 Create Google Cloud project:

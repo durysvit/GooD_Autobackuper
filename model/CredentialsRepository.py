@@ -10,24 +10,19 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the logger settings."""
+"""Module containing the CredentialsRepository class."""
 
 import os
-import json
-from loguru import logger
-from const.const import LOGGER_CONFIG_FILE_PATH
+from const.const import TOKEN_FILE
+from exception.exceptions import TokenFileDoesNotExistException
 
-with open(LOGGER_CONFIG_FILE_PATH, 'r') as loggerConfigFile:
-    loggerConfig = json.load(loggerConfigFile)
 
-os.makedirs(os.path.dirname(loggerConfig["logPath"]), exist_ok=True)
-
-logger.remove()
-
-logger.add(
-    loggerConfig["logPath"],
-    rotation=loggerConfig["rotation"],
-    mode=loggerConfig["mode"],
-    level=loggerConfig["level"],
-    format=loggerConfig["format"]
-)
+class CredentialsRepository:
+    """The model of the CredentialsRepository."""
+    @staticmethod
+    def deleteTokenFile(self) -> None:
+        """Deletes token.json."""
+        if os.path.exists(TOKEN_FILE):
+            os.remove(TOKEN_FILE)
+        else:
+            raise TokenFileDoesNotExistException()

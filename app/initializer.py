@@ -10,24 +10,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the logger settings."""
+"""Module containing the initializer of the environment."""
 
 import os
-import json
-from loguru import logger
-from const.const import LOGGER_CONFIG_FILE_PATH
+from const.const import RULE_DIRECTORY, RULES_FILE_PATH
 
-with open(LOGGER_CONFIG_FILE_PATH, 'r') as loggerConfigFile:
-    loggerConfig = json.load(loggerConfigFile)
 
-os.makedirs(os.path.dirname(loggerConfig["logPath"]), exist_ok=True)
+def initializeEnvironment():
+    """Creates the RULE_DIRECTORY and RULES_FILE."""
+    if not os.path.exists(RULE_DIRECTORY):
+        os.makedirs(RULE_DIRECTORY)
 
-logger.remove()
-
-logger.add(
-    loggerConfig["logPath"],
-    rotation=loggerConfig["rotation"],
-    mode=loggerConfig["mode"],
-    level=loggerConfig["level"],
-    format=loggerConfig["format"]
-)
+    if not os.path.exists(RULES_FILE_PATH):
+        open(RULES_FILE_PATH, 'w').close()

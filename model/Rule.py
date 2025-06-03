@@ -12,7 +12,7 @@
 
 """Module containing the Rule class."""
 
-from exception import (
+from exception.exceptions import (
     PathFromIsNoneException,
     PathFromIsBlankException,
     FolderIDIsNoneException,
@@ -20,13 +20,17 @@ from exception import (
     AccountIsNoneException,
     AccountIsBlankException,
     TimeIsNoneException,
-    TimeIsBlankException
+    TimeIsBlankException,
+    WeekdayIsBlankException,
+    WeekdayIsInvalidException,
+    DayOfMonthOutOfRangeException
 )
 
 
 class Rule:
     """Class representing a rule."""
-    def __init__(self, pathFrom: str, folderID: str, account: str, time: str):
+    def __init__(self, pathFrom: str, folderID: str, account: str, time: str,
+                 weekday: str | None = None, dayOfMonth: int | None = None):
         """
         Initializes a Rule instance with the given parameters.
         Args:
@@ -34,6 +38,9 @@ class Rule:
             folderID (str): target Google Drive folder ID.
             account (str): associated account name.
             time (str): time when the rule should be triggered.
+            weekday (str, None): weekday when the rule should be triggered.
+            dayOfMonth(int, None): day of month when the rule should be
+            triggered.
         Raises:
             PathFromIsNoneException: if pathFrom is None.
             PathFromIsBlankException: if pathFrom is an empty string.
@@ -43,12 +50,16 @@ class Rule:
             AccountIsBlankException: if account is an empty string.
             TimeIsNoneException: if time is None.
             TimeIsBlankException: if time is an empty string.
+            WeekdayIsBlankException: if weekday is an empty string.
+            DayOfMonthOutOfRangeException: if dayOfMonth is not in 1–31.
         """
 
         self.pathFrom = pathFrom
         self.folderID = folderID
         self.account = account
         self.time = time
+        self.weekday = weekday
+        self.dayOfMonth = dayOfMonth
 
     @property
     def pathFrom(self) -> str:
@@ -91,21 +102,91 @@ class Rule:
         return self.__time
 
     @time.setter
-    def time(self, time: str) -> None:
+    def time(self, time: str) -> None:  # ADD a time type
         if time is None:
             raise TimeIsNoneException()
         if not time.strip():
             raise TimeIsBlankException()
         self.__time = time
 
+    @property
+    def weekday(self) -> str:
+        return self.__weekday
+
+    @weekday.setter
+    def weekday(self, weekday: str | None) -> None:
+        if weekday is None:
+            self.__weekday = None
+            return
+
+        if not weekday.strip():
+            raise WeekdayIsBlankException()
+
+        weekdayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+                       "Saturday", "Sunday"]
+
+        if weekday not in weekdayList:
+            raise WeekdayIsInvalidException(weekday)
+
+        self.__weekday = weekday
+
+    @property
+    def dayOfMonth(self) -> int:
+        return self.__dayOfMonth
+
+    @dayOfMonth.setter
+    def dayOfMonth(self, dayOfMonth: int | None) -> None:
+        if dayOfMonth is None:
+            self.__dayOfMonth = None
+            return
+
+        MIN_DAY_OF_MONTH = 1
+        MAX_DAY_OF_MONTH = 31
+        if not (MIN_DAY_OF_MONTH <= dayOfMonth <= MAX_DAY_OF_MONTH):
+            raise DayOfMonthOutOfRangeException()
+        self.__dayOfMonth = dayOfMonth
+
     def copy(self) -> "Rule":
         return Rule(
             pathFrom=self.pathFrom,
             folderID=self.folderID,
             account=self.account,
-            time=self.time
+            time=self.time,
+            weekday=self.weekday,
+            dayOfMonth=self.dayOfMonth
         )
 
+    def toRow(self):
+        return [
+            self.pathFrom,
+            self.folderID,
+            self.account,
+            self.time,
+            self.weekday,
+            self.dayOfMonth
+        ]
+
     def __str__(self) -> str:
-        return f"Rule(pathForm={self.pathForm}, folderID={self.folderID}," + \
-            f" account={self.account}, time={self.time})"
+        return f"Rule(pathFrom={self.pathFrom},folderID={self.folderID}," + \
+            f"account={self.account},time={self.time}," + \
+            f"weekday={self.weekday},dayOfMonth={self.dayOfMonth})"
+
+    def __eq__(self, other) -> bool:
+        return (
+            self.pathFrom == other.pathFrom and
+            self.folderID == other.folderID and
+            self.account == other.account and
+            self.time == other.time and
+            self.weekday == other.weekday and
+            self.dayOfMonth == other.dayOfMonth
+        )
+
+    def __hash__(self):
+        return hash((
+            self.pathFrom,
+            self.folderID,
+            self.account,
+            self.time,
+            self.weekday,
+            self.dayOfMonth
+        ))

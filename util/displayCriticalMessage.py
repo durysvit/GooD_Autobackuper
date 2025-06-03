@@ -17,11 +17,11 @@ def displayCriticalMessage(exceptionMessage: str) -> None:
     """
     Displays a critical message box with the exception message.
     Args:
-        exceptionMessage (str): is an exception message.
+        exceptionMessage (str): is the exception message.
     """
     QMessageBox.critical(
         None,
         "Error",
-        exceptionMessage,
+        str(exceptionMessage),
         QMessageBox.Ok
     )

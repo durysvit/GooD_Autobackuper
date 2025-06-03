@@ -55,13 +55,13 @@ class FolderIDDoesNotExistException(Exception):
 class FolderIDIsBlankException(Exception):
     def __init__(self):
         """Raises if folderID is blank."""
-        super().__init__("FolderIDIsBlankException: folderID is blank.")
+        super().__init__("FolderIDIsBlankException: the folderID is blank.")
 
 
 class FolderIDIsNoneException(Exception):
     def __init__(self):
         """Raises if folderID is None."""
-        super().__init__("FolderIDIsNoneException: folderID is None.")
+        super().__init__("FolderIDIsNoneException: the folderID is None.")
 
 
 class ListOfRulesIsEmptyException(Exception):
@@ -80,11 +80,11 @@ class ListOfRulesIsNoneException(Exception):
         )
 
 
-class NoRowSelectedInTableException(Exception):
+class NoRuleSelectedInTableException(Exception):
     def __init__(self):
-        """Raises if no row was selected to delete."""
+        """Raises if no rule was selected to delete."""
         super().__init__(
-            "NoRowSelectedInTable: no row was selected to delete."
+            "NoRowSelectedInTableException: no rule was selected to delete."
         )
 
 
@@ -144,22 +144,18 @@ class PathToRulesFileDoesNotExistException(Exception):
         )
 
 
-class WeekdayIsNoneException(Exception):
-    """Raises if weekday is None"""
-    def __init__(self):
-        super().__init__("WeekdayIsNoneException: weekday is None.")
-
-
 class WeekdayIsBlankException(Exception):
     """Raises if weekday is blank"""
     def __init__(self):
         super().__init__("WeekdayIsBlankException: weekday is blank.")
 
 
-class DayOfMonthIsNoneException(Exception):
-    """Raises if day of month is None."""
-    def __init__(self):
-        super().__init__("DayOfMonthIsNoneException: day of month is None.")
+class WeekdayIsInvalidException(Exception):
+    def __init__(self, message: str):
+        """Raises if weekay is invalid."""
+        super().__init__(
+            "WeekdayIsInvalidException: " + message + " is invalid."
+        )
 
 
 class DayOfMonthOutOfRangeException(Exception):
@@ -200,4 +196,13 @@ class AccountLineEditIsEmptyException(Exception):
         """
         super().__init__(
             "AccountLineEditIsEmptyException: the account line edit is empty."
+        )
+
+
+class MalformedRuleAttributesException(Exception):
+    def __init__(self):
+        """Raises if the number of rule attributes is incorrect."""
+        super().__init__(
+            "MalformedRuleAttributesException: the number of rule attributes" +
+            "is incorrect."
         )

@@ -14,23 +14,39 @@
 #
 # Email argnullo@gmail.com.
 #
-# Version 1.5.0.
+# Version 2.0.0.
 
 """Module containing the entry point."""
 
 import sys
 from PyQt5.QtWidgets import QApplication
-from window.MainWindow import MainWindow
+from app.initializer import initializeEnvironment
+from view.MainWindow import MainWindow
+from model.RuleRepository import RuleRepository
+from model.CredentialsRepository import CredentialsRepository
+from controller.MainWindowController import MainWindowController
 from logger.logger import logger
 
 if __name__ == "__main__":
     logger.info("Start an application.")
 
+    initializeEnvironment()
+
     application = QApplication(sys.argv)
 
     mainWindow = MainWindow()
+    ruleRepository = RuleRepository()
+    credentialsRepository = CredentialsRepository()
+    mainWindowController = MainWindowController(
+        ruleRepository,
+        credentialsRepository,
+        mainWindow,
+    )
+
     mainWindow.show()
+
+    exitCode = application.exec_()
 
     logger.info("End the application.")
 
-    sys.exit(application.exec_())
+    sys.exit(exitCode)

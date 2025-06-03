@@ -11,7 +11,6 @@ if [ -f "$DESKTOP_FILE" ]; then
     echo "The program has already been added to startup"
 else
     mkdir -p "$AUTOSTART_DIR"
-
     echo "[Desktop Entry]
 Type=Application
 Exec=$EXE_PATH
@@ -19,6 +18,5 @@ Name=$APP_NAME
 Comment=argnullo@gmail.com
 Icon=$ICON_PATH
 Terminal=false" > "$DESKTOP_FILE"
-
     echo "The program has been added to startup."
 fi
