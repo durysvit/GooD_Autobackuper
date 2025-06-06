@@ -23,9 +23,21 @@ from exception.exceptions import (
 
 
 class RuleRepository:
-    """The model of the RuleRepository."""
-    @staticmethod
-    def loadRules() -> list[Rule]:
+    """
+    The model of the RuleRepository - the model manages the rules and the
+    rules file.
+    """
+    def loadRules(self) -> list[Rule]:
+        """
+        Loads the rules to the list from RULES_FILE.
+        Raises:
+            PathToRulesFileDoesNotExistException: raises if path to rules file
+            does not exist.
+            MalformedRuleAttributesException: raises if the number of rule
+            attributes is incorrect.
+        Returns:
+            list[Rule]: the list of rules from RULES_FILE.
+        """
         if not os.path.exists(RULES_FILE_PATH):
             raise PathToRulesFileDoesNotExistException()
 
@@ -60,8 +72,16 @@ class RuleRepository:
 
         return listOfRules
 
-    @staticmethod
-    def saveRules(listOfRules: list[Rule]) -> None:
+    def saveRules(self, listOfRules: list[Rule]) -> None:
+        """
+        Saves rules in RULES_FILE.
+        Args:
+            listOfRules (list[Rule]): the list of rules.
+        Raises:
+            PathToRulesFileDoesNotExistException: raises if path to rules file
+            does not exist.
+        """
+
         if not os.path.exists(RULES_FILE_PATH):
             raise PathToRulesFileDoesNotExistException()
 
@@ -69,18 +89,32 @@ class RuleRepository:
             for rule in listOfRules:
                 csv.writer(file).writerow(rule.toRow())
 
-    @staticmethod
-    def deleteRule(rule: Rule) -> None:
-        listOfRules = RuleRepository.loadRules()
+    def deleteRule(self, rule: Rule) -> None:
+        """
+        Deletes the rule from RULE_FILE.
+        Raises:
+            MalformedRuleAttributesException: raises if the number of rule
+            attributes is incorrect.
+            PathToRulesFileDoesNotExistException: raises if path to rules file
+            does not exist.
+        """
+        listOfRules = self.loadRules()
         filteredListOfRules = [i for i in listOfRules if i != rule]
-        RuleRepository.saveRules(filteredListOfRules)
+        self.saveRules(filteredListOfRules)
 
-    @staticmethod
-    def saveUniqueRules(newRules: list[Rule]) -> None:
+    def saveUniqueRules(self, newRules: list[Rule]) -> None:
+        """
+        Saves the unique rules to RULE_FILE.
+        Raises:
+            MalformedRuleAttributesException: raises if the number of rule
+            attributes is incorrect.
+            PathToRulesFileDoesNotExistException: raises if path to rules file
+            does not exist.
+        """
         if not os.path.exists(RULES_FILE_PATH):
             raise PathToRulesFileDoesNotExistException()
 
-        existingRules = RuleRepository.loadRules()
+        existingRules = self.loadRules()
 
         combinedRules = set(existingRules) | set(newRules)
 

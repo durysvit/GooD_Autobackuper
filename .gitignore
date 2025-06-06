@@ -29,7 +29,4 @@ rule/
 dist/
 build/
 test/
-backup/
-docs/
-doc/
 log/

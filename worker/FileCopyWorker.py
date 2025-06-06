@@ -16,179 +16,133 @@ import os
 import time
 import datetime
 from PyQt5.QtCore import QThread, pyqtSignal
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from model.Rule import Rule
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
-from google.auth.exceptions import RefreshError
-from google.oauth2.credentials import Credentials
-from util.displayCriticalMessage import displayCriticalMessage
-from logger.logger import logger
-from const.const import TOKEN_FILE, CREDENTIALS_FILE, SCOPES
 from exception.exceptions import (
     FileNotUploadedException,
     FolderIDDoesNotExistException,
-    TokenFileDoesNotExistException,
-    CredentialsFileDoesNotExistException,
-    TokenFileIsExpiredOrRevokedException,
-    ListOfRulesIsEmptyException,
-    ListOfRulesIsNoneException
+    ListOfRulesIsNoneException,
+    DriveServiceInNoneException,
 )
 
 
 class FileCopyWorker(QThread):
     """The class of Google Drive worker."""
     updateSignal = pyqtSignal()
+    errorOccured = pyqtSignal(str)
 
-    def __init__(self, rules: list):
+    def __init__(self, driveService: "Service", listOfRules: list[Rule]):
         """
+        Initializes the file copy worker.
         Args:
-            rules: list of rules.
+            listOfRules (list[Rule]): list of rules.
         Raises:
             ListOfRulesIsNoneException: raise if the list of rules is None.
-            ListOfRulesIsEmptyException: raise if the list of rules is empty.
-            TokenFileIsExpiredOrRevokedException: raise if token file is
-            expired or revoked. This exception is caught and logged internally.
+            DriveServiceInNoneException: raises if the drive service is None.
         """
         super().__init__()
-        try:
-            self.driveService = self.__connectToGoogleDrive()
-        except RefreshError:
-            message = str(TokenFileIsExpiredOrRevokedException())
-            logger.error(message)
-            displayCriticalMessage(message)
-            return
-        if rules is None:
+        if listOfRules is None:
             raise ListOfRulesIsNoneException()
-        if not rules:
-            raise ListOfRulesIsEmptyException()
+        if driveService is None:
+            raise DriveServiceInNoneException()
 
-        self.rules = rules
-
-    def __connectToGoogleDrive(self) -> None:
-        """
-        Saves user authorization data for automatic authorization in the
-        future.
-        Raises:
-            TokenFileDoesNotExistException: raise if TOKEN_FILE doesn't exist.
-            CredentialsFileDoesNotExistException: raise if CREDENTIAL_FILE
-            doesn't exist.
-        """
-        creds = None
-        if os.path.exists(TOKEN_FILE):
-            creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-        else:
-            logger.error(TokenFileDoesNotExistException())
-        if not os.path.exists(CREDENTIALS_FILE):
-            logger.error(CredentialsFileDoesNotExistException())
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    CREDENTIALS_FILE,
-                    SCOPES
-                )
-                creds = flow.run_local_server(port=0)
-            with open(TOKEN_FILE, "w") as token:
-                token.write(creds.to_json())
-        driveService = build("drive", "v3", credentials=creds)
-        return driveService
+        self.driveService = driveService
+        self.listOfRules = listOfRules
 
     def run(self) -> None:
-        """Checks the time to start copying."""
-        while True:  # replace True
-            for rule in self.rules:
-                pathFrom, folderID, Account, timeToCopy, weekday, dayOfMonth \
-                    = rule
-
+        """Checks the time, the date to start copying."""
+        while True:
+            for rule in self.listOfRules:
                 now = datetime.datetime.now()
                 currentWeekday = now.strftime("%A")
                 currentDayOfMonth = now.day
                 currentTimeStr = now.strftime("%H:%M")
 
-                targetTimeStr = datetime.datetime.strptime(
-                    timeToCopy,
-                    "%H:%M"
-                ).strftime("%H:%M")
-
-                targetTime = datetime.datetime.strptime(timeToCopy, "%H:%M")
-                targetTimeStr = targetTime.strftime("%H:%M")
-
                 shouldCheck = True
 
-                if weekday.strip():
-                    if weekday != currentWeekday:
+                if rule.weekday and rule.weekday.strip():
+                    if rule.weekday.lower() != currentWeekday.lower():
                         shouldCheck = False
 
-                if dayOfMonth.strip():
-                    try:
-                        targetDay = int(dayOfMonth)
-                        if targetDay != currentDayOfMonth:
-                            shouldCheck = False
-                    except ValueError:  # Create new exception
-                        logger.error(f"Invalid dayOfMonth value: {dayOfMonth}")
-                        continue
+                if rule.dayOfMonth:
+                    if rule.dayOfMonth != currentDayOfMonth:
+                        shouldCheck = False
 
-                if shouldCheck and currentTimeStr == targetTimeStr:
-                    if not self.__isFolderIDExists(folderID):
-                        message = str(FolderIDDoesNotExistException(folderID))
-                        logger.error(message)
-                        displayCriticalMessage(message)
-                        return
-                    self.__uploadToGoogleDrive(pathFrom, folderID)
+                if shouldCheck and currentTimeStr == rule.time:
+                    try:
+                        if not self.__isFolderIDExists(rule.folderID):
+                            raise FolderIDDoesNotExistException(rule.folderID)
+                    except (
+                        FolderIDDoesNotExistException,
+                        HttpError
+                    ) as exception:
+                        self.errorOccured.emit(str(exception))
+                        continue
+                    try:
+                        self.__uploadToGoogleDrive(
+                            rule.pathFrom,
+                            rule.folderID
+                        )
+                    except FileNotUploadedException as exception:
+                        self.errorOccured.emit(str(exception))
+                        continue
             self.updateSignal.emit()
             WORKER_CHECK_TIME = 60
             time.sleep(WORKER_CHECK_TIME)
 
-    def __uploadToGoogleDrive(self, source: list,
-                              destinationFolderID: str) -> None:
+    def __uploadToGoogleDrive(self, source: list, folderID: str) -> None:
         """
         Uploads files from a list of file paths to a Google Drive folder by its
-         ID.
+        ID.
         Args:
             source: is a list of file paths.
-            destinationFolderID: is the ID of the destination folder.
+            folderID: is the ID of the destination folder.
         Raises:
-            FileNotUploadedException: raise if a file fails to upload to
-            Google Drive.
+            FileNotUploadedException: raise if the file has not been uploaded
+            to Google Drive.
         """
         for filename in os.listdir(source):
             filePath = os.path.join(source, filename)
             if os.path.isfile(filePath):
-                self.__uploadFile(filePath, destinationFolderID)
+                try:
+                    self.__uploadFile(filePath, folderID)
+                except Exception:
+                    raise FileNotUploadedException()
 
-    def __uploadFile(self, filePath: str, destinationFolderID: str) -> None:
+    def __uploadFile(self, filePath: str, folderID: str) -> None:
         """
         Uploads a single file to the given Google Drive folder by its ID.
         Args:
             filePath: is a file path.
-            destinationFolderID: is the destination folder ID.
-        Raises:
-            FileNotUploadedException: raise if in the file has not been
-            uploaded to Google Drive.
+            folderID: is the destination folder ID.
         """
-        fileMetadata = {
-            "name": os.path.basename(filePath),
-            "parents": [destinationFolderID]
-        }
+        fileName = os.path.basename(filePath)
+
+        query = f"'{folderID}' in parents and name = '{fileName}' and " + \
+            "trashed = false"
+        response = self.driveService.files().list(
+            q=query,
+            spaces="drive",
+            fields="files(id)"
+        ).execute()
+        files = response.get("files", [])
+
         media = MediaFileUpload(filePath, mimetype="application/octet-stream")
-        try:
+
+        if files:
+            fileId = files[0]["id"]
+            self.driveService.files().update(
+                fileId=fileId,
+                media_body=media
+            ).execute()
+        else:
+            metadata = {"name": fileName, "parents": [folderID]}
             self.driveService.files().create(
-                body=fileMetadata,
+                body=metadata,
                 media_body=media,
                 fields="id"
             ).execute()
-        except HttpError as exception:
-            message = str(FileNotUploadedException() + exception)
-            logger.error(message)
-            displayCriticalMessage(message)
-            return
-        except Exception as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
-            return
 
     def __isFolderIDExists(self, folderID: str) -> bool:
         """
@@ -196,19 +150,15 @@ class FileCopyWorker(QThread):
         Args:
             folderID: is the Google Drive folder ID.
         Raises:
-            HttpError: raise if ...
+            HttpError: raise if the folder ID doesn't exist.
         """
         try:
-            fileMetadata = self.driveService.files().get(
+            self.driveService.files().get(
                 fileId=folderID,
                 fields="id, name, mimeType"
             ).execute()
-            MIME_TYPE = "application/vnd.google-apps.folder"
-            if fileMetadata.get("mimeType") == MIME_TYPE:
-                return True
-            else:
+            return True
+        except HttpError as e:
+            if e.resp.status == 404:
                 return False
-        except HttpError as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
-            return False
+            raise FolderIDDoesNotExistException(folderID)

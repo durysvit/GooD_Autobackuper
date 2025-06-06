@@ -10,13 +10,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the CreationRuleWindowController class."""
+"""Module containing the CreationRuleController class."""
 
 from view.CreationRuleWindow import CreationRuleWindow
 from model.Rule import Rule
 from model.RuleRepository import RuleRepository
-from logger.logger import logger
-from util.displayCriticalMessage import displayCriticalMessage
+from util.reportException import reportException
 from exception.exceptions import (
     PathFromLineEditIsEmptyException,
     FolderIDLineEditIsEmptyException,
@@ -25,7 +24,7 @@ from exception.exceptions import (
 )
 
 
-class CreationRuleWindowController:
+class CreationRuleController:
     def __init__(self, model: RuleRepository, view: CreationRuleWindow):
         self.model = model
         self.view = view
@@ -51,8 +50,7 @@ class CreationRuleWindowController:
             AccountLineEditIsEmptyException,
             TimeListIsEmptyException
         ) as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
+            reportException(exception)
 
     def getRuleData(self) -> list[Rule]:
         """

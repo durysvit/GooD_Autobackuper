@@ -13,15 +13,38 @@
 """Module containing the CredentialsRepository class."""
 
 import os
-from const.const import TOKEN_FILE
-from exception.exceptions import TokenFileDoesNotExistException
+from const.const import TOKEN_FILE, SCOPES
+from google.oauth2.credentials import Credentials
+from exception.exceptions import (
+    TokenFileDoesNotExistException,
+)
 
 
 class CredentialsRepository:
     """The model of the CredentialsRepository."""
-    @staticmethod
+    def loadCredentials(self) -> Credentials:
+        """
+        Loads TOKEN_FILE.
+        Raises:
+            TokenFileDoesNotExistException: raises if the token file does not
+            exist.
+        """
+        if not os.path.exists(TOKEN_FILE):
+            raise TokenFileDoesNotExistException()
+        return Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+
+    def saveCredentials(self, credentials: Credentials) -> None:
+        """Saves TOKEN_FILE."""
+        with open(TOKEN_FILE, 'w') as credentialsFile:
+            credentialsFile.write(credentials.to_json())
+
     def deleteTokenFile(self) -> None:
-        """Deletes token.json."""
+        """
+        Deletes TOKEN_FILE.
+        Raises:
+            TokenFileDoesNotExistException: raises if the token file does not
+            exist.
+        """
         if os.path.exists(TOKEN_FILE):
             os.remove(TOKEN_FILE)
         else:

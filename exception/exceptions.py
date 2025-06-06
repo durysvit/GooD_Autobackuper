@@ -13,6 +13,42 @@
 """Module containing exceptions."""
 
 
+class PathFromIsBlankException(Exception):
+    def __init__(self):
+        """Raises if pathFrom is blank."""
+        super().__init__("PathFromIsBlankException: the pathFrom is blank.")
+
+
+class PathFromIsNoneException(Exception):
+    def __init__(self):
+        """Raises if pathFrom is None."""
+        super().__init__("PathFromIsNoneException: the pathFrom is None.")
+
+
+class FolderIDIsBlankException(Exception):
+    def __init__(self):
+        """Raises if folderID is blank."""
+        super().__init__("FolderIDIsBlankException: the folderID is blank.")
+
+
+class FolderIDIsNoneException(Exception):
+    def __init__(self):
+        """Raises if folderID is None."""
+        super().__init__("FolderIDIsNoneException: the folderID is None.")
+
+
+class TimeIsBlankException(Exception):
+    def __init__(self):
+        """Raises if time is blank."""
+        super().__init__("TimeIsBlankException: time is blank.")
+
+
+class TimeIsNoneException(Exception):
+    def __init__(self):
+        """Raises if time is None."""
+        super().__init__("TimeIsNoneException: time is None.")
+
+
 class AccountIsBlankException(Exception):
     def __init__(self):
         """Raises if account is blank."""
@@ -25,9 +61,31 @@ class AccountIsNoneException(Exception):
         super().__init__("AccountIsNoneException: account is None.")
 
 
+class WeekdayIsBlankException(Exception):
+    """Raises if weekday is blank."""
+    def __init__(self):
+        super().__init__("WeekdayIsBlankException: weekday is blank.")
+
+
+class WeekdayIsInvalidException(Exception):
+    def __init__(self, message: str):
+        """Raises if weekay is invalid."""
+        super().__init__(
+            "WeekdayIsInvalidException: " + message + " is invalid."
+        )
+
+
+class DayOfMonthOutOfRangeException(Exception):
+    """Raises if day of month is out of range."""
+    def __init__(self):
+        super().__init__(
+            "DayOfMonthOutOfRangeException: day of month must be in 1–31."
+        )
+
+
 class CredentialsFileDoesNotExistException(Exception):
     def __init__(self):
-        """Raises if credentials file does not exist"""
+        """Raises if credentials file does not exist."""
         super().__init__(
             "CredentialsFileDoesNotExistException: the credentials file does" +
             " not exist."
@@ -48,27 +106,15 @@ class FolderIDDoesNotExistException(Exception):
         """Raises if folder ID does not exist."""
         super().__init__(
             "FolderIDDoesNotExistException: " + folderID + " folder ID does " +
-            "not exist"
+            "not exist."
         )
-
-
-class FolderIDIsBlankException(Exception):
-    def __init__(self):
-        """Raises if folderID is blank."""
-        super().__init__("FolderIDIsBlankException: the folderID is blank.")
-
-
-class FolderIDIsNoneException(Exception):
-    def __init__(self):
-        """Raises if folderID is None."""
-        super().__init__("FolderIDIsNoneException: the folderID is None.")
 
 
 class ListOfRulesIsEmptyException(Exception):
     def __init__(self):
         """Raises if the list of rules is empty."""
         super().__init__(
-            "ListOfRulesIsEmptyException: the list of rules is empty"
+            "ListOfRulesIsEmptyException: the list of rules is empty."
         )
 
 
@@ -76,7 +122,7 @@ class ListOfRulesIsNoneException(Exception):
     def __init__(self):
         """Raises if the list of rules is None."""
         super().__init__(
-            "ListOfRulesIsNoneException: the list of rules is None"
+            "ListOfRulesIsNoneException: the list of rules is None."
         )
 
 
@@ -88,30 +134,6 @@ class NoRuleSelectedInTableException(Exception):
         )
 
 
-class PathFromIsBlankException(Exception):
-    def __init__(self):
-        """Raises if pathFrom is blank."""
-        super().__init__("PathFromIsBlankException: the pathFrom is blank.")
-
-
-class PathFromIsNoneException(Exception):
-    def __init__(self):
-        """Raises if pathFrom is None."""
-        super().__init__("PathFromIsNoneException: the pathFrom is None.")
-
-
-class TimeIsBlankException(Exception):
-    def __init__(self):
-        """Raises if time is blank."""
-        super().__init__("TimeIsBlankException: time is blank.")
-
-
-class TimeIsNoneException(Exception):
-    def __init__(self):
-        """Raises if time is None."""
-        super().__init__("TimeIsNoneException: time is None.")
-
-
 class TimeListIsEmptyException(Exception):
     def __init__(self):
         """Raises if in the Creation rule window, the time list is empty."""
@@ -120,7 +142,7 @@ class TimeListIsEmptyException(Exception):
 
 class TokenFileDoesNotExistException(Exception):
     def __init__(self):
-        """Raises if token file does not exist."""
+        """Raises if the token file does not exist."""
         super().__init__(
             "TokenFileDoesNotExistException: the token file does not exist."
         )
@@ -137,32 +159,10 @@ class TokenFileIsExpiredOrRevokedException(Exception):
 
 class PathToRulesFileDoesNotExistException(Exception):
     def __init__(self):
-        """Raises if path to rules file does not exist"""
+        """Raises if path to rules file does not exist."""
         super().__ini__(
             "PathToRulesFileDoesNotExistException: path to rules file does " +
             "not exist."
-        )
-
-
-class WeekdayIsBlankException(Exception):
-    """Raises if weekday is blank"""
-    def __init__(self):
-        super().__init__("WeekdayIsBlankException: weekday is blank.")
-
-
-class WeekdayIsInvalidException(Exception):
-    def __init__(self, message: str):
-        """Raises if weekay is invalid."""
-        super().__init__(
-            "WeekdayIsInvalidException: " + message + " is invalid."
-        )
-
-
-class DayOfMonthOutOfRangeException(Exception):
-    """Raises if day of month is out of range"""
-    def __init__(self):
-        super().__init__(
-            "DayOfMonthOutOfRangeException: day of month must be in 1–31."
         )
 
 
@@ -205,4 +205,20 @@ class MalformedRuleAttributesException(Exception):
         super().__init__(
             "MalformedRuleAttributesException: the number of rule attributes" +
             "is incorrect."
+        )
+
+
+class DriveServiceInNoneException(Exception):
+    def __init__(self):
+        """Raises if the drive service in None."""
+        super().__init__(
+            "DriveServiceInNoneException: the drive service is None."
+        )
+
+
+class DayOfMonthIsInvalidException(Exception):
+    def __init__(self):
+        """Raises if the day of month is invalid."""
+        super().__init__(
+            "DayOfMonthIsInvalidException: the day of month is invalid."
         )

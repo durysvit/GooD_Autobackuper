@@ -24,7 +24,9 @@ from app.initializer import initializeEnvironment
 from view.MainWindow import MainWindow
 from model.RuleRepository import RuleRepository
 from model.CredentialsRepository import CredentialsRepository
-from controller.MainWindowController import MainWindowController
+from controller.ApplicationController import ApplicationController
+from worker.FileCopyWorker import FileCopyWorker
+from service.GoogleAuthService import GoogleAuthService
 from logger.logger import logger
 
 if __name__ == "__main__":
@@ -34,13 +36,24 @@ if __name__ == "__main__":
 
     application = QApplication(sys.argv)
 
-    mainWindow = MainWindow()
-    ruleRepository = RuleRepository()
     credentialsRepository = CredentialsRepository()
-    mainWindowController = MainWindowController(
+
+    driveService = GoogleAuthService.getAuthorizedService(
+        credentialsRepository
+    )
+
+    ruleRepository = RuleRepository()
+
+    listOfRules = ruleRepository.loadRules()
+
+    mainWindow = MainWindow()
+    worker = FileCopyWorker(driveService, listOfRules)
+    applicationController = ApplicationController(
+        mainWindow,
         ruleRepository,
         credentialsRepository,
-        mainWindow,
+        worker,
+        driveService
     )
 
     mainWindow.show()

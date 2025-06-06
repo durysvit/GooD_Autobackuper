@@ -12,6 +12,8 @@
 
 """Module containing the CreationRuleWindow class."""
 
+from view.GoogleDriveFolderPicker import GoogleDriveFolderPicker
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QDialog,
     QPushButton,
@@ -22,16 +24,15 @@ from PyQt5.QtWidgets import (
     QTimeEdit,
     QLabel,
     QFileDialog,
+    QStyle,
     QComboBox,
     QSpinBox
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QStyle
 
 
 class CreationRuleWindow(QDialog):
     """The class of creation rules of autobackup."""
-    def __init__(self):
+    def __init__(self, driveService):
         super().__init__()
         self.setWindowTitle("Create rule")
         self.setWindowFlags(
@@ -42,14 +43,20 @@ class CreationRuleWindow(QDialog):
         self.pathFromInput.setPlaceholderText("Path from")
         self.pathFromInput.setReadOnly(True)
 
-        self.browseButton = QPushButton()
-        self.browseButton.setIcon(
-            self.style().standardIcon(QStyle.SP_DirOpenIcon)
-        )
-        self.browseButton.clicked.connect(self.selectFolder)
-
         self.folderIDInput = QLineEdit()
         self.folderIDInput.setPlaceholderText("Folder ID")
+        self.folderIDInput.setReadOnly(True)
+
+        icon = self.style().standardIcon(QStyle.SP_DirOpenIcon)
+
+        self.browsePathFromButton = QPushButton()
+        self.browsePathFromButton.setIcon(icon)
+        self.browsePathFromButton.clicked.connect(self.selectFolder)
+
+        self.browseFolderIDButton = QPushButton()
+        self.browseFolderIDButton.setIcon(icon)
+        self.browseFolderIDButton.clicked.connect(self.selectGoogleFolder)
+
         self.accountInput = QLineEdit()
         self.accountInput.setPlaceholderText("Account")
 
@@ -76,11 +83,15 @@ class CreationRuleWindow(QDialog):
 
         pathLayout = QHBoxLayout()
         pathLayout.addWidget(self.pathFromInput)
-        pathLayout.addWidget(self.browseButton)
+        pathLayout.addWidget(self.browsePathFromButton)
+
+        folderIDLayout = QHBoxLayout()
+        folderIDLayout.addWidget(self.folderIDInput)
+        folderIDLayout.addWidget(self.browseFolderIDButton)
 
         layout = QVBoxLayout()
         layout.addLayout(pathLayout)
-        layout.addWidget(self.folderIDInput)
+        layout.addLayout(folderIDLayout)
         layout.addWidget(self.accountInput)
         layout.addWidget(self.timeEdit)
         layout.addWidget(self.addButton)
@@ -98,6 +109,8 @@ class CreationRuleWindow(QDialog):
         self.dayOfMonthSpinBox.valueChanged.connect(self.toggleWeekday)
         self.setLayout(layout)
         self.timeList.installEventFilter(self)
+
+        self.driveService = driveService
 
     def addTime(self) -> None:
         """Adds unique value of the time to list."""
@@ -131,6 +144,14 @@ class CreationRuleWindow(QDialog):
         if folderPath:
             self.pathFromInput.setText(folderPath)
 
+    def selectGoogleFolder(self):
+        """Selects Google Drive folder."""
+        dialog = GoogleDriveFolderPicker(self.driveService)
+        dialog.folderSelected.connect(
+            lambda folderID: self.folderIDInput.setText(folderID)
+        )
+        dialog.exec_()
+
     def toggleWeekday(self, value: int) -> None:
         """
         Disables weekdayComboBox if dayOfMonth is selected, else enables it.
@@ -154,6 +175,11 @@ class CreationRuleWindow(QDialog):
             self.dayOfMonthSpinBox.setDisabled(False)
 
     def getInputs(self) -> dict:
+        """
+        Returns the rules data.
+        Returns:
+            dict: the dict of the rules data.
+        """
         return {
             "pathFrom": self.pathFromInput.text().strip(),
             "folderID": self.folderIDInput.text().strip(),

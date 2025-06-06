@@ -38,9 +38,10 @@ class Rule:
             folderID (str): target Google Drive folder ID.
             account (str): associated account name.
             time (str): time when the rule should be triggered.
-            weekday (str, None): weekday when the rule should be triggered.
+            weekday (str, None): weekday when the rule should be triggered
+            (optional).
             dayOfMonth(int, None): day of month when the rule should be
-            triggered.
+            triggered (optional).
         Raises:
             PathFromIsNoneException: if pathFrom is None.
             PathFromIsBlankException: if pathFrom is an empty string.
@@ -51,9 +52,10 @@ class Rule:
             TimeIsNoneException: if time is None.
             TimeIsBlankException: if time is an empty string.
             WeekdayIsBlankException: if weekday is an empty string.
+            WeekdayIsInvalidException: if weekday is not in "Monday" ...
+            "Sunday".
             DayOfMonthOutOfRangeException: if dayOfMonth is not in 1–31.
         """
-
         self.pathFrom = pathFrom
         self.folderID = folderID
         self.account = account
@@ -102,7 +104,7 @@ class Rule:
         return self.__time
 
     @time.setter
-    def time(self, time: str) -> None:  # ADD a time type
+    def time(self, time: str) -> None:
         if time is None:
             raise TimeIsNoneException()
         if not time.strip():
@@ -118,16 +120,13 @@ class Rule:
         if weekday is None:
             self.__weekday = None
             return
-
         if not weekday.strip():
             raise WeekdayIsBlankException()
 
         weekdayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
                        "Saturday", "Sunday"]
-
         if weekday not in weekdayList:
             raise WeekdayIsInvalidException(weekday)
-
         self.__weekday = weekday
 
     @property
@@ -146,6 +145,16 @@ class Rule:
             raise DayOfMonthOutOfRangeException()
         self.__dayOfMonth = dayOfMonth
 
+    def toRow(self) -> list:
+        return [
+            self.pathFrom,
+            self.folderID,
+            self.account,
+            self.time,
+            self.weekday,
+            self.dayOfMonth
+        ]
+
     def copy(self) -> "Rule":
         return Rule(
             pathFrom=self.pathFrom,
@@ -156,22 +165,12 @@ class Rule:
             dayOfMonth=self.dayOfMonth
         )
 
-    def toRow(self):
-        return [
-            self.pathFrom,
-            self.folderID,
-            self.account,
-            self.time,
-            self.weekday,
-            self.dayOfMonth
-        ]
-
     def __str__(self) -> str:
         return f"Rule(pathFrom={self.pathFrom},folderID={self.folderID}," + \
             f"account={self.account},time={self.time}," + \
             f"weekday={self.weekday},dayOfMonth={self.dayOfMonth})"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: "Rule") -> bool:
         return (
             self.pathFrom == other.pathFrom and
             self.folderID == other.folderID and
@@ -181,7 +180,7 @@ class Rule:
             self.dayOfMonth == other.dayOfMonth
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((
             self.pathFrom,
             self.folderID,

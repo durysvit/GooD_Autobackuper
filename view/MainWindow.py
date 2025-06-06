@@ -12,7 +12,7 @@
 
 """Module containing the MainWindow class."""
 
-from PyQt5.QtCore import QTimer, QEvent
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
@@ -30,10 +30,8 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QSystemTrayIcon,
     QAbstractItemView,
-    QAbstractScrollArea,
 )
 from model.Rule import Rule
-from worker.FileCopyWorker import FileCopyWorker
 from const.const import ICON_FILE
 from exception.exceptions import (
     ListOfRulesIsEmptyException,
@@ -51,7 +49,7 @@ class MainWindow(QMainWindow):
     DAY_OF_MONTH_COLUMN = 5
 
     def __init__(self):
-        """Initialize the main window."""
+        """Initializes the main window."""
         super().__init__()
         self.setWindowTitle("GooD Autobackuper")
         self.setWindowIcon(QIcon(ICON_FILE))
@@ -106,23 +104,14 @@ class MainWindow(QMainWindow):
 
         self.__resizeWindowInHalfOfScreen()
         self.__centerWindow()
-        # self.controller.loadRulesToTable()
-
-        # rules = list(
-
-        # self.fileCopyWorker = FileCopyWorker(rules)
-        # self.fileCopyWorker.start()
-
-        # ONE_SECOND_IN_MILLISECONDS = 1000
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.controller.loadRulesToTable)  # replace
-        # self.timer.start(ONE_SECOND_IN_MILLISECONDS)
 
     def addRulesToTable(self, listOfRules: list[Rule]) -> None:
         """
         Adds rules to the table.
         Args:
             listOfRules (list[Rule]): is the list of rules.
+        Raises:
+            ListOfRulesIsEmptyException: raises if the list of rules is empty.
         """
         if not listOfRules:
             raise ListOfRulesIsEmptyException()
@@ -151,7 +140,7 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
     def closeEvent(self, event: QEvent) -> None:
-        """Hides the program when the program is closed."""
+        """Hides (tray) the program when the program is closed."""
         event.ignore()
         self.hide()
 
@@ -161,16 +150,29 @@ class MainWindow(QMainWindow):
             self.show()
             self.activateWindow()
 
-    def getSelectedRow(self):
-        """..."""
+    def getSelectedRow(self) -> int:
+        """
+        Returns the selected row in the table.
+        Raises:
+            NoRuleSelectedInTableException: raise if no row was selected to
+            delete.
+        Returns:
+            int: selected rule.
+        """
         NO_RULE_SELECTED = -1
         selectedRule = self.table.currentRow()
         if selectedRule == NO_RULE_SELECTED:
             raise NoRuleSelectedInTableException()
         return selectedRule
 
-    def getSelectedRuleFromTable(self, selectedRow: int) -> Rule:
-        """..."""
+    def getSelectedRuleFromTable(self, selectedRow: int) -> dict:
+        """
+        Returns the selected rule (data) from the table.
+        Args:
+            selectedRow (int): the selected data from the table.
+        Returns:
+            dict: the dict of the rules from table.
+        """
         return {
             "pathFrom": self.table.item(
                 selectedRow,
@@ -196,10 +198,12 @@ class MainWindow(QMainWindow):
         }
 
     def resetTable(self):
+        """Resets the table."""
         RESET_TABLE = 0
         self.table.setRowCount(RESET_TABLE)
 
     def selectRow(self, selectedRow: int) -> None:
+        """Selects the row in the table."""
         self.table.selectRow(selectedRow)
 
     def __resizeWindowInHalfOfScreen(self) -> None:

@@ -10,55 +10,68 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the main MainWindowController class."""
+"""Module containing the main ApplicationController class."""
 
 from view.MainWindow import MainWindow
 from view.CreationRuleWindow import CreationRuleWindow
 from model.Rule import Rule
 from model.RuleRepository import RuleRepository
 from model.CredentialsRepository import CredentialsRepository
-from controller.CreationRuleWindowController import (
-    CreationRuleWindowController
+from worker.FileCopyWorker import FileCopyWorker
+from util.reportException import reportException
+from controller.CreationRuleController import (
+    CreationRuleController
 )
-from logger.logger import logger
-from util.displayCriticalMessage import displayCriticalMessage
 from exception.exceptions import (
     NoRuleSelectedInTableException,
     TokenFileDoesNotExistException,
     ListOfRulesIsEmptyException,
     PathToRulesFileDoesNotExistException,
+    MalformedRuleAttributesException,
 )
 
 
-class MainWindowController:
-    """The class of MainWindowController."""
-    def __init__(self, ruleModel: RuleRepository,
-                 credentialsModel: CredentialsRepository, view: MainWindow):
+class ApplicationController:
+    """
+    The class of the ApplicationController - the application controller binds
+    windows, worker, models and services.
+    """
+    def __init__(self, view: MainWindow, ruleModel: RuleRepository,
+                 credentialsModel: CredentialsRepository,
+                 worker: FileCopyWorker, driveService):
         """
         Initializes a Rule instance with the given parameters.
         Args:
-            ruleModel (RuleRepository): ...
-            view (MainWindow): ...
+            view (MainWindow): is the main window.
+            ruleModel (RuleRepository): is the rule management model.
+            credentialsModel (CredentialsRepository): is the credentials
+            management model.
+            worker (FileCopyWorker): is the Google Drive backup worker.
+            driveService: is the authorized service.
         """
-        self.ruleModel = ruleModel
         self.view = view
+        self.ruleModel = ruleModel
+        self.credentialsModel = credentialsModel
+        self.worker = worker
+        self.driveService = driveService
 
         self.view.createRulesButton.clicked.connect(
-            self.displayCreateRuleWindow
+            self.displayCreationRuleWindow
         )
         self.view.deleteSelectedRuleButton.clicked.connect(
             self.deleteSelectedRuleFromTable
         )
         self.view.deleteTokenFileAction.triggered.connect(self.deleteTokenFile)
         self.view.updateTableAction.triggered.connect(self.updateTable)
-        # self.view.fileCopyWorker.updateSignal.connect(self.loadRulesToTable)
 
-        self.loadRulesToTable()
+        self.worker.updateSignal.connect(self.loadRulesToTable)
+        self.worker.errorOccured.connect(self.handleWorkerError)
+        self.worker.start()
 
-    def displayCreateRuleWindow(self) -> None:
+    def displayCreationRuleWindow(self) -> None:
         """Displays the CreateRuleWindow."""
-        creationRuleWindow = CreationRuleWindow()
-        creationRuleWindowController = CreationRuleWindowController(
+        creationRuleWindow = CreationRuleWindow(self.driveService)
+        creationRuleController = CreationRuleController(
             self.ruleModel,
             creationRuleWindow
         )
@@ -68,19 +81,27 @@ class MainWindowController:
         """
         Loads rules to the table from RULES_FILE.
         Raises:
-            PathToRulesFileDoesNotExistException: raise if path to rules file
+            PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
+            MalformedRuleAttributesException: raises if the number of rule
+            attributes is incorrect.
+            ListOfRulesIsEmptyException: raises if the list of rules is empty.
         """
         self.view.resetTable()
 
-        listOfRules = self.ruleModel.loadRules()
+        listOfRules = []
+        try:
+            listOfRules = self.ruleModel.loadRules()
+        except (
+            PathToRulesFileDoesNotExistException,
+            MalformedRuleAttributesException,
+        ) as exception:
+            reportException(exception)
 
         try:
             self.view.addRulesToTable(listOfRules)
         except ListOfRulesIsEmptyException as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
-            return
+            reportException(exception)
 
     def deleteSelectedRuleFromTable(self) -> None:
         """
@@ -88,15 +109,19 @@ class MainWindowController:
         Raises:
             NoRuleSelectedInTableException: raise if no row was selected to
             delete.
+            PathToRulesFileDoesNotExistException: raises if path to rules file
+            does not exist.
+            MalformedRuleAttributesException: raises if the number of rule
+            attributes is incorrect.
         """
+        selectedRow = 0
         try:
-            selectedRule = self.view.getSelectedRow()
+            selectedRow = self.view.getSelectedRow()
         except NoRuleSelectedInTableException as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
+            reportException(exception)
             return
 
-        rulesData = self.view.getSelectedRuleFromTable(selectedRule)
+        rulesData = self.view.getSelectedRuleFromTable(selectedRow)
 
         weekday = rulesData["weekday"] if rulesData["weekday"].strip() \
             else None
@@ -114,19 +139,11 @@ class MainWindowController:
 
         try:
             self.ruleModel.deleteRule(rule)
-        except PathToRulesFileDoesNotExistException as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
-
-        self.loadRulesToTable()
-
-        # try:
-        #     selectedRow = self.view.getSelectedRow()
-        #     self.view.selectRow(selectedRow)
-        # except NoRuleSelectedInTableException as exception:
-        #     logger.error(exception)
-        #     displayCriticalMessage(exception)
-        #     return
+        except (
+            PathToRulesFileDoesNotExistException,
+            MalformedRuleAttributesException,
+        ) as exception:
+            reportException(exception)
 
     def deleteTokenFile(self) -> None:
         """
@@ -138,9 +155,12 @@ class MainWindowController:
         try:
             self.credentialsModel.deleteTokenFile()
         except TokenFileDoesNotExistException as exception:
-            logger.error(exception)
-            displayCriticalMessage(exception)
+            reportException(exception)
 
     def updateTable(self) -> None:
-        """Updated the table."""
+        """Updates the table."""
         self.loadRulesToTable()
+
+    def handleWorkerError(self, exception) -> None:
+        """Handles worker exceptions."""
+        reportException(exception)
