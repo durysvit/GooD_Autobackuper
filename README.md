@@ -12,8 +12,6 @@ GooD Autobackuper — Automated Backup System for Google Drive.
 
 Version 2.0.0.
 
-See [Specification](./doc/specification).
-
 ## Author 
 
 Github: [durysvit](https://github.com/durysvit).
@@ -23,6 +21,12 @@ Email: argnullo@gmail.com.
 ## User manual
 
 **IMPORTANT**: Once or twice a month you will have to re-authorize, as Google revokes it.
+
+## Demo
+
+![Demo application](./docs/gif/demoApp.gif)
+
+![Demo drive](./docs/gif/demoDrive.gif)
 
 ### Before starting the program
 
@@ -92,7 +96,7 @@ Exceptions:
 * ...LineEditIsEmptyException — Path from, Folder ID, Account — raises if one of the fields in the rule creation window is empty — fill in all fields;
 * TokenFileDoesNotExistException — raises if the token file does not exist — log in to Google;
 * CredentialsFileDoesNotExistException — raises if credentials file doesn't exist  — register as a developer in Google Console — see subsection "Before starting the program";
-* FileNotUploadedException — raises if in the file has not been uploaded to Google Drive — check if the Google Drive folder ID is entered correctly; try again later; check your internet connection; re-authorize by deleting the "token.json" file;
+* FileNotUploadedException — raises if in the file has not been uploaded to Google Drive — try again later; check your internet connection; re-authorize by deleting the "token.json" file;
 * EmptyTimeListException — raises if in the Creation rule window, the time list is empty — complete the list with time;
 * NoRowSelectedInTable — raises if no row was selected to delete from table — select the row;
 * TokenFileIsExpiredOrRevokedException — raises if token file is expired or revoked — try delete token file and authorise again;
@@ -150,3 +154,11 @@ pyinstaller --onefile --windowed --icon=GooD_Autobackuper.svg --name GooD_Autoba
 ## License
 
 The code is distributed under the GNU GPLv3. See [LICENSE](./LICENSE).
+
+# See also
+
+See also:
+* [Specification](./doc/specification);
+* [Privacy policy](./PRIVACY_POLICY.md);
+* [Terms of service](./TERMS_OF_SERVICE.md).
+
