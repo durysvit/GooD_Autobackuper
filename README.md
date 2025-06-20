@@ -22,6 +22,8 @@ Email: argnullo@gmail.com.
 
 **IMPORTANT**: Once or twice a month you will have to re-authorize, as Google revokes it.
 
+The software will probably be submitted for review and added to the Google Marketplace in the near future — that is, you will not need to use the Google Cloud Console and create a secret.
+
 ## Demo
 
 ![Demo application](./docs/gif/demoApp.gif)
