@@ -128,7 +128,7 @@ Download project:
 Then clone the repository:
 
 ```
-git clone https://github.com/username/repository-name.git
+git clone https://github.com/durysvit/GooD_Autobackuper.git
 cd <replaceDirectoryName>
 ```
 
