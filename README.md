@@ -119,6 +119,19 @@ System Requirements:
 
 ## Build the project
 
+Download project:
+* Install Git:
+    * for Linux (Manjaro): `sudo pacman -S git`;
+    * for Windows: install [Git](https://git-scm.com/).
+* or press 'Code' and 'Download ZIP'.
+
+Then clone the repository:
+
+```
+git clone https://github.com/username/repository-name.git
+cd <replaceDirectoryName>
+```
+
 Install the latest version of [Python and Pip](https://www.python.org/).
 
 Create a [virtual environment](https://docs.python.org/uk/3.10/library/venv.html):
@@ -158,7 +171,7 @@ The code is distributed under the GNU GPLv3. See [LICENSE](./LICENSE).
 # See also
 
 See also:
-* [Specification](./doc/specification);
+* [Specification](./docs/specification.md);
 * [Privacy policy](./PRIVACY_POLICY.md);
 * [Terms of service](./TERMS_OF_SERVICE.md).
 
