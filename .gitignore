@@ -24,9 +24,7 @@ plan.md
 # folders
 __pycache__/
 venv/
-test/
 rule/
 dist/
 build/
-test/
 log/
