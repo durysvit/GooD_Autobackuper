@@ -20,11 +20,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install unittest coverage flake8 pylint mypy bandit
+          pip install pytest coverage flake8 pylint mypy bandit
 
       - name: Run tests
         run: |
-          coverage run -m unittest
+          coverage run -m pytest
           coverage report
 
       - name: Lint
