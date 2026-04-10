@@ -14,7 +14,19 @@
 
 import unittest
 from model.Rule import Rule
-from exception.exceptions import *
+from exception.exceptions import (
+    PathFromIsNoneException,
+    PathFromIsBlankException,
+    FolderIDIsNoneException,
+    FolderIDIsBlankException,
+    AccountIsNoneException,
+    AccountIsBlankException,
+    TimeIsNoneException,
+    TimeIsBlankException,
+    WeekdayIsBlankException,
+    WeekdayIsInvalidException,
+    DayOfMonthOutOfRangeException
+)
 
 
 class TestRule(unittest.TestCase):

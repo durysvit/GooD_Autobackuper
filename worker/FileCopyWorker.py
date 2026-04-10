@@ -32,7 +32,7 @@ class FileCopyWorker(QThread):
     updateSignal = pyqtSignal()
     errorOccured = pyqtSignal(str)
 
-    def __init__(self, driveService: "Service", listOfRules: list[Rule]):
+    def __init__(self, driveService, listOfRules: list[Rule]):
         """
         Initializes the file copy worker.
         Args:

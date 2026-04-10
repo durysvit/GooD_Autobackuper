@@ -23,7 +23,7 @@ from exception.exceptions import TokenFileDoesNotExistException
 class GoogleAuthService:
     """The class of GoogleAuthService - authorizes the user in the Google."""
     @staticmethod
-    def getAuthorizedService(credentialsModel: CredentialsRepository) -> "Service":
+    def getAuthorizedService(credentialsModel: CredentialsRepository):
         """
         Returns the drive service.
         Raises:

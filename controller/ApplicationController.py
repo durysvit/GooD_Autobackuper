@@ -71,7 +71,7 @@ class ApplicationController:
     def displayCreationRuleWindow(self) -> None:
         """Displays the CreateRuleWindow."""
         creationRuleWindow = CreationRuleWindow(self.driveService)
-        creationRuleController = CreationRuleController(
+        CreationRuleController(
             self.ruleModel,
             creationRuleWindow
         )
