@@ -141,7 +141,7 @@ class Rule:
 
         MIN_DAY_OF_MONTH = 1
         MAX_DAY_OF_MONTH = 31
-        if not (MIN_DAY_OF_MONTH <= dayOfMonth <= MAX_DAY_OF_MONTH):
+        if not MIN_DAY_OF_MONTH <= dayOfMonth <= MAX_DAY_OF_MONTH:
             raise DayOfMonthOutOfRangeException()
         self.__dayOfMonth = dayOfMonth
 

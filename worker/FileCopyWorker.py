@@ -107,8 +107,8 @@ class FileCopyWorker(QThread):
             if os.path.isfile(filePath):
                 try:
                     self.__uploadFile(filePath, folderID)
-                except Exception:
-                    raise FileNotUploadedException()
+                except Exception as exception:
+                    raise FileNotUploadedException() from exception
 
     def __uploadFile(self, filePath: str, folderID: str) -> None:
         """
@@ -158,7 +158,7 @@ class FileCopyWorker(QThread):
                 fields="id, name, mimeType"
             ).execute()
             return True
-        except HttpError as e:
-            if e.resp.status == 404:
+        except HttpError as exception:
+            if exception.resp.status == 404:
                 return False
-            raise FolderIDDoesNotExistException(folderID)
+            raise FolderIDDoesNotExistException(folderID) from exception

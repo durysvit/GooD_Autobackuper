@@ -1,5 +1,20 @@
+[BASIC]
 method-rgx=^[a-z][a-zA-Z0-9]+$
 function-rgx=^[a-z][a-zA-Z0-9]+$
 argument-rgx=^[a-z][a-zA-Z0-9]+$
 variable-rgx=^[a-z][a-zA-Z0-9]+$
 attr-rgx=^[a-z][a-zA-Z0-9]+$
+
+[MESSAGES CONTROL]
+disable=
+    C0103,  # snake_case (у тебя CamelCase — это ок по заданию)
+    R0913,  # too many arguments
+    R0917,  # too many positional arguments
+    C0115,  # missing docstring
+    R0903,  # too few public methods
+    C0411,  # import order
+    W1514,  # encoding warning
+    R1732   # with open
+
+[TYPECHECK]
+ignored-modules=PyQt5

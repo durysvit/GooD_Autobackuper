@@ -160,7 +160,7 @@ class TokenFileIsExpiredOrRevokedException(Exception):
 class PathToRulesFileDoesNotExistException(Exception):
     def __init__(self):
         """Raises if path to rules file does not exist."""
-        super().__ini__(
+        super().__init__(
             "PathToRulesFileDoesNotExistException: path to rules file does " +
             "not exist."
         )
