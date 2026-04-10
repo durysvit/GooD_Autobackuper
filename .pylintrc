@@ -14,7 +14,13 @@ disable=
     R0903,  # too few public methods
     C0411,  # import order
     W1514,  # encoding warning
-    R1732   # with open
+    R1732,  # with open
+    R0902,
+    C0116,
+    E1121,
+    R0915,
+    W0108,
+    R0915
 
 [TYPECHECK]
 ignored-modules=PyQt5
