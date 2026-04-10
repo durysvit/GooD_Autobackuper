@@ -53,7 +53,7 @@ class RuleRepository:
             reader = csv.reader(file)
             for row in reader:
                 if len(row) < NUMBER_OF_RULE_ATTRIBUTES:
-                    raise MalformedRuleAttributesException(row)
+                    raise MalformedRuleAttributesException()
 
                 weekday = row[WEEKDAY_ELEMENT] if \
                     row[WEEKDAY_ELEMENT].strip() else None

@@ -19,4 +19,4 @@ from util.displayCriticalMessage import displayCriticalMessage
 def reportException(exception: Exception) -> None:
     """Reports exceptions - logs and displays message"""
     logger.error(exception)
-    displayCriticalMessage(exception)
+    displayCriticalMessage(str(exception))

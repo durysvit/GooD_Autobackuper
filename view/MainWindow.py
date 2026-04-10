@@ -12,8 +12,7 @@
 
 """Module containing the MainWindow class."""
 
-from PyQt5.QtCore import QEvent
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -139,7 +138,7 @@ class MainWindow(QMainWindow):
         """Ends the program."""
         QApplication.quit()
 
-    def closeEvent(self, event: QEvent) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:
         """Hides (tray) the program when the program is closed."""
         event.ignore()
         self.hide()

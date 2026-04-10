@@ -33,7 +33,7 @@ class CredentialsRepository:
             raise TokenFileDoesNotExistException()
         return Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
 
-    def saveCredentials(self, credentials: Credentials) -> None:
+    def saveCredentials(self, credentials: Credentials | None) -> None:
         """Saves TOKEN_FILE."""
         with open(TOKEN_FILE, 'w') as credentialsFile:
             credentialsFile.write(credentials.to_json())

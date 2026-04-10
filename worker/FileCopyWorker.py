@@ -91,24 +91,22 @@ class FileCopyWorker(QThread):
             WORKER_CHECK_TIME = 60
             time.sleep(WORKER_CHECK_TIME)
 
-    def __uploadToGoogleDrive(self, source: list, folderID: str) -> None:
+    def __uploadToGoogleDrive(self, filePath: str, folderID: str) -> None:
         """
         Uploads files from a list of file paths to a Google Drive folder by its
         ID.
         Args:
-            source: is a list of file paths.
+            source: is a file path.
             folderID: is the ID of the destination folder.
         Raises:
             FileNotUploadedException: raise if the file has not been uploaded
             to Google Drive.
         """
-        for filename in os.listdir(source):
-            filePath = os.path.join(source, filename)
-            if os.path.isfile(filePath):
-                try:
-                    self.__uploadFile(filePath, folderID)
-                except Exception as exception:
-                    raise FileNotUploadedException() from exception
+        if os.path.isfile(filePath):
+            try:
+                self.__uploadFile(filePath, folderID)
+            except Exception as exception:
+                raise FileNotUploadedException() from exception
 
     def __uploadFile(self, filePath: str, folderID: str) -> None:
         """

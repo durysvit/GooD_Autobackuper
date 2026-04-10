@@ -116,7 +116,7 @@ class Rule:
         return self.__weekday
 
     @weekday.setter
-    def weekday(self, weekday: str | None) -> None:
+    def weekday(self, weekday: str | None) -> str | None:
         if weekday is None:
             self.__weekday = None
             return
@@ -134,7 +134,7 @@ class Rule:
         return self.__dayOfMonth
 
     @dayOfMonth.setter
-    def dayOfMonth(self, dayOfMonth: int | None) -> None:
+    def dayOfMonth(self, dayOfMonth: int | None) -> int | None:
         if dayOfMonth is None:
             self.__dayOfMonth = None
             return
@@ -170,7 +170,10 @@ class Rule:
             f"account={self.account},time={self.time}," + \
             f"weekday={self.weekday},dayOfMonth={self.dayOfMonth})"
 
-    def __eq__(self, other: "Rule") -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Rule):
+            return NotImplemented
+
         return (
             self.pathFrom == other.pathFrom and
             self.folderID == other.folderID and
