@@ -87,7 +87,7 @@ class GoogleDriveFolderPicker(QDialog):
             child = QTreeWidgetItem([folder["name"]])
             child.setData(0, Qt.UserRole, folder["id"])  # type: ignore
             child.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
-            child.setData(0, Qt.UserRole + 1, False) # type: ignore
+            child.setData(0, Qt.UserRole + 1, False)  # type: ignore
             item.addChild(child)
         item.setData(0, Qt.UserRole + 1, True)  # type: ignore
 
