@@ -112,14 +112,13 @@ class Rule:
         self.__time = time
 
     @property
-    def weekday(self) -> str:
+    def weekday(self) -> str | None:
         return self.__weekday
 
     @weekday.setter
     def weekday(self, weekday: str | None) -> str | None:
         if weekday is None:
             self.__weekday = None
-            return
         if not weekday.strip():
             raise WeekdayIsBlankException()
 
@@ -130,14 +129,13 @@ class Rule:
         self.__weekday = weekday
 
     @property
-    def dayOfMonth(self) -> int:
+    def dayOfMonth(self) -> int | None:
         return self.__dayOfMonth
 
     @dayOfMonth.setter
     def dayOfMonth(self, dayOfMonth: int | None) -> int | None:
         if dayOfMonth is None:
             self.__dayOfMonth = None
-            return
 
         MIN_DAY_OF_MONTH = 1
         MAX_DAY_OF_MONTH = 31

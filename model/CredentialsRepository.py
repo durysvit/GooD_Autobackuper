@@ -35,6 +35,9 @@ class CredentialsRepository:
 
     def saveCredentials(self, credentials: Credentials | None) -> None:
         """Saves TOKEN_FILE."""
+        if credentials is None:
+            return
+
         with open(TOKEN_FILE, 'w') as credentialsFile:
             credentialsFile.write(credentials.to_json())
 

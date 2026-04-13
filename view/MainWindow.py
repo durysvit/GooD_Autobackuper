@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         """Ends the program."""
         QApplication.quit()
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent | None) -> None:
         """Hides (tray) the program when the program is closed."""
         event.ignore()
         self.hide()
