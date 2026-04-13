@@ -140,12 +140,14 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent | None) -> None:
         """Hides (tray) the program when the program is closed."""
-        event.ignore()
+        if event is not None:
+            event.ignore()
         self.hide()
+
 
     def iconClicked(self, reason) -> None:
         """Opens the window."""
-        if reason == QSystemTrayIcon.Trigger:
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.show()
             self.activateWindow()
 
