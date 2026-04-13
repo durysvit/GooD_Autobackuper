@@ -116,32 +116,36 @@ class Rule:
         return self.__weekday
 
     @weekday.setter
-    def weekday(self, weekday: str | None) -> str | None:
+    def weekday(self, weekday: str | None) -> None:
         if weekday is None:
             self.__weekday = None
-        if not weekday.strip():
-            raise WeekdayIsBlankException()
+        else:
+            if not weekday.strip():
+                raise WeekdayIsBlankException()
 
-        weekdayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-                       "Saturday", "Sunday"]
-        if weekday not in weekdayList:
-            raise WeekdayIsInvalidException(weekday)
-        self.__weekday = weekday
+            weekdayList = [
+                "Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"
+            ]
+
+            if weekday not in weekdayList:
+                raise WeekdayIsInvalidException(weekday)
+
+            self.__weekday = weekday
 
     @property
     def dayOfMonth(self) -> int | None:
         return self.__dayOfMonth
 
     @dayOfMonth.setter
-    def dayOfMonth(self, dayOfMonth: int | None) -> int | None:
+    def dayOfMonth(self, dayOfMonth: int | None) -> None:
         if dayOfMonth is None:
             self.__dayOfMonth = None
+        else:
+            if not (1 <= dayOfMonth <= 31):
+                raise DayOfMonthOutOfRangeException()
 
-        MIN_DAY_OF_MONTH = 1
-        MAX_DAY_OF_MONTH = 31
-        if not MIN_DAY_OF_MONTH <= dayOfMonth <= MAX_DAY_OF_MONTH:
-            raise DayOfMonthOutOfRangeException()
-        self.__dayOfMonth = dayOfMonth
+            self.__dayOfMonth = dayOfMonth
 
     def toRow(self) -> list:
         return [
