@@ -60,41 +60,41 @@ class GoogleDriveFolderPicker(QDialog):
 
     def onItemClicked(self, item) -> None:
         """Saves the selected item."""
-        self.selectedFolderID = item.data(0, Qt.UserRole) # type: ignore
+        self.selectedFolderID = item.data(0, Qt.UserRole)  # type: ignore
 
     def populateRoot(self) -> None:
         rootItem = QTreeWidgetItem(["Root"])
-        rootItem.setData(0, Qt.UserRole, "root") # type: ignore
+        rootItem.setData(0, Qt.UserRole, "root")  # type: ignore
         rootItem.setChildIndicatorPolicy(
-            QTreeWidgetItem.ShowIndicator) # type: ignore
-        rootItem.setData(0, Qt.UserRole + 1, False) # type: ignore
+            QTreeWidgetItem.ShowIndicator)  # type: ignore
+        rootItem.setData(0, Qt.UserRole + 1, False)  # type: ignore
         self.tree.addTopLevelItem(rootItem)
         self.tree.expandItem(rootItem)
         self.tree.setCurrentItem(rootItem)
 
     def loadSubfoldersLazy(self, item):
         """Loads subfolders lazy."""
-        isLoaded = item.data(0, Qt.UserRole + 1) # type: ignore
+        isLoaded = item.data(0, Qt.UserRole + 1)  # type: ignore
         if isLoaded:
             return
 
-        parentID = item.data(0, Qt.UserRole) # type: ignore
+        parentID = item.data(0, Qt.UserRole)  # type: ignore
         subfolders = GoogleDriveService.listFolders(
             self.driveService,
             parentID
         )
         for folder in subfolders:
             child = QTreeWidgetItem([folder["name"]])
-            child.setData(0, Qt.UserRole, folder["id"]) # type: ignore
+            child.setData(0, Qt.UserRole, folder["id"])  # type: ignore
             child.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
             child.setData(0, Qt.UserRole + 1, False) # type: ignore
             item.addChild(child)
-        item.setData(0, Qt.UserRole + 1, True) # type: ignore
+        item.setData(0, Qt.UserRole + 1, True)  # type: ignore
 
     def confirm(self) -> None:
         """Accepts the selected folder."""
         selected = self.tree.currentItem()
         if selected:
-            folderID = selected.data(0, Qt.UserRole) # type: ignore
+            folderID = selected.data(0, Qt.UserRole)  # type: ignore
             self.folderSelected.emit(folderID)
             self.accept()

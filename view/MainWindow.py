@@ -144,7 +144,6 @@ class MainWindow(QMainWindow):
             event.ignore()
         self.hide()
 
-
     def iconClicked(self, reason) -> None:
         """Opens the window."""
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
