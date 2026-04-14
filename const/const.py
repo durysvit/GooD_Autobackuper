@@ -24,7 +24,7 @@ RULES_FILE = "rules.csv"
 LOGGER_CONFIG_FILE = "configLogger.json"
 
 # Confidential files
-TOKEN_FILE = "token.json"
+TOKEN_FILE = "token.json"  # nosec B105
 CREDENTIALS_FILE = "credentials.json"
 
 # Scopes
