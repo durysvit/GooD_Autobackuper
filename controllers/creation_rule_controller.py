@@ -12,10 +12,10 @@
 
 """Module containing the CreationRuleController class."""
 
-from view.CreationRuleWindow import CreationRuleWindow
+from view.creation_rule_window import CreationRuleWindow
 from model.Rule import Rule
-from model.RuleRepository import RuleRepository
-from util.reportException import reportException
+from model.repositories.RuleRepository import RuleRepository
+from util.report_exception import report_exception
 from exception.exceptions import (
     PathFromLineEditIsEmptyException,
     FolderIDLineEditIsEmptyException,
@@ -29,9 +29,9 @@ class CreationRuleController:
         self.model = model
         self.view = view
 
-        self.view.confirmButton.clicked.connect(self.addRules)
+        self.view.confirm_button.clicked.connect(self.add_rules)
 
-    def addRules(self) -> None:
+    def add_rules(self) -> None:
         """
         Adds the rules to the file RULES_FILE_PATH.
         Raises:
@@ -41,8 +41,8 @@ class CreationRuleController:
             TimeListIsEmptyException: the time list line edit is empty.
         """
         try:
-            listOfRules = self.getRuleData()
-            self.model.saveUniqueRules(listOfRules)
+            list_of_rules = self.get_rule_data()
+            self.model.save_unique_rules(list_of_rules)
             self.view.accept()
         except (
             PathFromLineEditIsEmptyException,
@@ -50,9 +50,9 @@ class CreationRuleController:
             AccountLineEditIsEmptyException,
             TimeListIsEmptyException
         ) as exception:
-            reportException(exception)
+            report_exception(exception)
 
-    def getRuleData(self) -> list[Rule]:
+    def get_rule_data(self) -> list[Rule]:
         """
         Gets the rules data.
         Raises:
@@ -64,9 +64,9 @@ class CreationRuleController:
             empty.
             TimeListIsEmptyException: raise if the time list is empty.
         Returns:
-            listOfRules (list[Rule]): list of rules.
+            rules_list (list[Rule]): list of rules.
         """
-        inputs = self.view.getInputs()
+        inputs = self.view.get_inputs()
 
         if not inputs["pathFrom"]:
             raise PathFromLineEditIsEmptyException()
@@ -79,9 +79,9 @@ class CreationRuleController:
 
         weekday = inputs["weekday"] if inputs["weekday"].strip() \
             else None
-        dayOfMonth = inputs["dayOfMonth"] if inputs["dayOfMonth"] != 0 \
+        day_of_month = inputs["day_of_month"] if inputs["day_of_month"] != 0 \
             else None
-        listOfRules = []
+        rules_list = []
 
         for time in inputs["timeList"]:
             rule = Rule(
@@ -90,8 +90,8 @@ class CreationRuleController:
                 inputs["account"],
                 time,
                 weekday,
-                dayOfMonth
+                day_of_month
             )
-            listOfRules.append(rule)
+            rules_list.append(rule)
 
-        return listOfRules
+        return rules_list

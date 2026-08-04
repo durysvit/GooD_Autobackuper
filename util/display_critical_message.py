@@ -10,16 +10,20 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the initializer of the environment."""
+"""Module containing the displayCriticalMessage method."""
 
-import os
-from const.const import RULE_DIRECTORY, RULES_FILE_PATH
+from PyQt5.QtWidgets import QMessageBox
 
 
-def initializeEnvironment():
-    """Creates the RULE_DIRECTORY and RULES_FILE."""
-    if not os.path.exists(RULE_DIRECTORY):
-        os.makedirs(RULE_DIRECTORY)
-
-    if not os.path.exists(RULES_FILE_PATH):
-        open(RULES_FILE_PATH, 'w').close()
+def display_critical_message(exception_message: str) -> None:
+    """
+    Displays a critical message box with the exceptions message.
+    Args:
+        exception_message (str): is the exceptions message.
+    """
+    QMessageBox.critical(
+        None,
+        "Error",
+        str(exception_message),
+        QMessageBox.Ok
+    )

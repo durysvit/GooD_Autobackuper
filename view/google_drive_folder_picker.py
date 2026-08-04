@@ -12,7 +12,7 @@
 
 """Module containing the GoogleDriveFolderPicker class."""
 
-from service.GoogleDriveService import GoogleDriveService
+from service.google_drive_service import GoogleDriveService
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
     QDialog,
@@ -28,73 +28,72 @@ class GoogleDriveFolderPicker(QDialog):
     The class of GoogleDriveFolderPicker - manager for selecting from the
     directory hierarchy in Google Drive.
     """
-    folderSelected = pyqtSignal(str)
+    folder_selected = pyqtSignal(str)
 
-    def __init__(self, driveService):
+    def __init__(self, drive_service):
         """
         Initializes the folder picker window.
         Args:
-            driveService (Service): is the auth drive service.
+            drive_service (Service): is the auth drive service.
         """
         super().__init__()
-        self.driveService = driveService
+        self.drive_service = drive_service
         self.setWindowTitle("Select Google Drive Folder")
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint
         )
-        self.selectedFolderID = None
+        self.selected_folder_id = None
 
         self.tree = QTreeWidget()
         self.tree.setHeaderHidden(True)
-        self.tree.itemExpanded.connect(self.loadSubfoldersLazy)
+        self.tree.itemExpanded.connect(self.load_subfolders_lazy)
 
-        self.confirmButton = QPushButton("Select")
-        self.confirmButton.clicked.connect(self.confirm)
+        self.confirm_button = QPushButton("Select")
+        self.confirm_button.clicked.connect(self.confirm)
 
         layout = QVBoxLayout()
         layout.addWidget(self.tree)
-        layout.addWidget(self.confirmButton)
+        layout.addWidget(self.confirm_button)
         self.setLayout(layout)
 
-        self.populateRoot()
+        self.populate_root()
 
-    def onItemClicked(self, item) -> None:
+    def on_item_clicked(self, item) -> None:
         """Saves the selected item."""
-        self.selectedFolderID = item.data(0, Qt.UserRole)  # type: ignore
+        self.selected_folder_id = item.data(0, Qt.UserRole)
 
-    def populateRoot(self) -> None:
-        rootItem = QTreeWidgetItem(["Root"])
-        rootItem.setData(0, Qt.UserRole, "root")  # type: ignore
-        rootItem.setChildIndicatorPolicy(
-            QTreeWidgetItem.ShowIndicator)  # type: ignore
-        rootItem.setData(0, Qt.UserRole + 1, False)  # type: ignore
-        self.tree.addTopLevelItem(rootItem)
-        self.tree.expandItem(rootItem)
-        self.tree.setCurrentItem(rootItem)
+    def populate_root(self) -> None:
+        root_item = QTreeWidgetItem(["Root"])
+        root_item.setData(0, Qt.UserRole, "root")
+        root_item.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
+        root_item.setData(0, Qt.UserRole + 1, False)
+        self.tree.addTopLevelItem(root_item)
+        self.tree.expandItem(root_item)
+        self.tree.setCurrentItem(root_item)
 
-    def loadSubfoldersLazy(self, item):
+    def load_subfolders_lazy(self, item):
         """Loads subfolders lazy."""
-        isLoaded = item.data(0, Qt.UserRole + 1)  # type: ignore
-        if isLoaded:
+        is_loaded = item.data(0, Qt.UserRole + 1)
+        if is_loaded:
             return
 
-        parentID = item.data(0, Qt.UserRole)  # type: ignore
-        subfolders = GoogleDriveService.listFolders(
-            self.driveService,
-            parentID
+        parent_id = item.data(0, Qt.UserRole)
+        subfolders = GoogleDriveService.list_folders(
+            self.drive_service,
+            parent_id
         )
         for folder in subfolders:
             child = QTreeWidgetItem([folder["name"]])
-            child.setData(0, Qt.UserRole, folder["id"])  # type: ignore
+            child.setData(0, Qt.UserRole, folder["id"])
             child.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
-            child.setData(0, Qt.UserRole + 1, False)  # type: ignore
+            child.setData(0, Qt.UserRole + 1, False)
             item.addChild(child)
-        item.setData(0, Qt.UserRole + 1, True)  # type: ignore
+        item.setData(0, Qt.UserRole + 1, True)
 
     def confirm(self) -> None:
         """Accepts the selected folder."""
-        selected = self.tree.currentItem()
-        if selected:
-            folderID = selected.data(0, Qt.UserRole)  # type: ignore
-            self.folderSelected.emit(folderID)
+        selected_folder = self.tree.currentItem()
+        if selected_folder:
+            folder_id = selected_folder.data(0, Qt.UserRole)
+            self.folder_selected.emit(folder_id)
             self.accept()

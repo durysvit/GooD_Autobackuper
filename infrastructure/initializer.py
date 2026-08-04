@@ -10,13 +10,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the reportException method."""
+"""Module containing the initializer of the environment."""
 
-from logger.logger import logger
-from util.displayCriticalMessage import displayCriticalMessage
+import os
+from const.const import RULE_DIRECTORY, RULES_FILE_PATH
 
 
-def reportException(exception: Exception) -> None:
-    """Reports exceptions - logs and displays message"""
-    logger.error(exception)
-    displayCriticalMessage(str(exception))
+def initialize_environment():
+    """Creates the RULE_DIRECTORY and RULES_FILE."""
+    if not os.path.exists(RULE_DIRECTORY):
+        os.makedirs(RULE_DIRECTORY)
+
+    if not os.path.exists(RULES_FILE_PATH):
+        open(RULES_FILE_PATH, 'w').close()

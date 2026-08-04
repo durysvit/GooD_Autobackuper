@@ -24,7 +24,7 @@ Email: argnullo@gmail.com.
 
 The software will probably be submitted for review and added to the Google Marketplace in the near future — that is, you will not need to use the Google Cloud Console and create a secret.
 
-## Demo
+### Demo
 
 ![Demo application](./docs/gif/demoApp.gif)
 
@@ -174,6 +174,6 @@ The code is distributed under the GNU GPLv3. See [LICENSE](./LICENSE).
 
 See also:
 * [Specification](./docs/specification.md);
-* [Privacy policy](./PRIVACY_POLICY.md);
-* [Terms of service](./TERMS_OF_SERVICE.md).
+* [Privacy policy](docs/PRIVACY_POLICY.md);
+* [Terms of service](docs/TERMS_OF_SERVICE.md).
 

@@ -15,14 +15,14 @@
 import os
 from const.const import TOKEN_FILE, SCOPES
 from google.oauth2.credentials import Credentials
-from exception.exceptions import (
+from exceptions.exceptions import (
     TokenFileDoesNotExistException,
 )
 
 
 class CredentialsRepository:
     """The model of the CredentialsRepository."""
-    def loadCredentials(self) -> Credentials:
+    def load_credentials(self) -> Credentials:
         """
         Loads TOKEN_FILE.
         Raises:
@@ -33,7 +33,7 @@ class CredentialsRepository:
             raise TokenFileDoesNotExistException()
         return Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
 
-    def saveCredentials(self, credentials: Credentials | None) -> None:
+    def save_credentials(self, credentials: Credentials | None) -> None:
         """Saves TOKEN_FILE."""
         if credentials is None:
             return
@@ -41,7 +41,7 @@ class CredentialsRepository:
         with open(TOKEN_FILE, 'w') as credentialsFile:
             credentialsFile.write(credentials.to_json())
 
-    def deleteTokenFile(self) -> None:
+    def delete_token_file(self) -> None:
         """
         Deletes TOKEN_FILE.
         Raises:

@@ -128,15 +128,15 @@ class ListOfRulesIsNoneException(Exception):
 
 class NoRuleSelectedInTableException(Exception):
     def __init__(self):
-        """Raises if no rule was selected to delete."""
+        """Raises if no rules was selected to delete."""
         super().__init__(
-            "NoRowSelectedInTableException: no rule was selected to delete."
+            "NoRowSelectedInTableException: no rules was selected to delete."
         )
 
 
 class TimeListIsEmptyException(Exception):
     def __init__(self):
-        """Raises if in the Creation rule window, the time list is empty."""
+        """Raises if in the Creation rules window, the time list is empty."""
         super().__init__("TimeListIsEmptyException: the time list is empty.")
 
 
@@ -169,7 +169,7 @@ class PathToRulesFileDoesNotExistException(Exception):
 class PathFromLineEditIsEmptyException(Exception):
     def __init__(self):
         """
-        Raises if in the Creation rule window the path from line edit is empty.
+        Raises if in the Creation rules window the path from line edit is empty.
         """
         super().__init__(
             "PathFromLineEditIsEmptyException: the path from line edit is " +
@@ -180,7 +180,7 @@ class PathFromLineEditIsEmptyException(Exception):
 class FolderIDLineEditIsEmptyException(Exception):
     def __init__(self):
         """
-        Raises if in the Creation rule window the folder ID line edit is
+        Raises if in the Creation rules window the folder ID line edit is
         empty.
         """
         super().__init__(
@@ -192,7 +192,7 @@ class FolderIDLineEditIsEmptyException(Exception):
 class AccountLineEditIsEmptyException(Exception):
     def __init__(self):
         """
-        Raises if in the Creation rule window the account line edit is empty.
+        Raises if in the Creation rules window the account line edit is empty.
         """
         super().__init__(
             "AccountLineEditIsEmptyException: the account line edit is empty."
@@ -201,9 +201,9 @@ class AccountLineEditIsEmptyException(Exception):
 
 class MalformedRuleAttributesException(Exception):
     def __init__(self):
-        """Raises if the number of rule attributes is incorrect."""
+        """Raises if the number of rules attributes is incorrect."""
         super().__init__(
-            "MalformedRuleAttributesException: the number of rule attributes" +
+            "MalformedRuleAttributesException: the number of rules attributes" +
             "is incorrect."
         )
 

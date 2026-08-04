@@ -16,7 +16,7 @@ import os
 import csv
 from const.const import RULES_FILE_PATH, NUMBER_OF_RULE_ATTRIBUTES
 from model.Rule import Rule
-from exception.exceptions import (
+from exceptions.exceptions import (
     PathToRulesFileDoesNotExistException,
     MalformedRuleAttributesException,
 )
@@ -27,13 +27,13 @@ class RuleRepository:
     The model of the RuleRepository - the model manages the rules and the
     rules file.
     """
-    def loadRules(self) -> list[Rule]:
+    def load_rules(self) -> list[Rule]:
         """
         Loads the rules to the list from RULES_FILE.
         Raises:
             PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
-            MalformedRuleAttributesException: raises if the number of rule
+            MalformedRuleAttributesException: raises if the number of rules
             attributes is incorrect.
         Returns:
             list[Rule]: the list of rules from RULES_FILE.
@@ -48,7 +48,7 @@ class RuleRepository:
         WEEKDAY_ELEMENT = 4
         DAY_OF_MONTH_ELEMENT = 5
 
-        listOfRules = []
+        rules_list = []
         with open(RULES_FILE_PATH, mode='r', newline='') as file:
             reader = csv.reader(file)
             for row in reader:
@@ -57,7 +57,7 @@ class RuleRepository:
 
                 weekday = row[WEEKDAY_ELEMENT] if \
                     row[WEEKDAY_ELEMENT].strip() else None
-                dayOfMonth = None if not row[DAY_OF_MONTH_ELEMENT].strip() \
+                day_of_month = None if not row[DAY_OF_MONTH_ELEMENT].strip() \
                     else int(row[DAY_OF_MONTH_ELEMENT])
 
                 rule = Rule(
@@ -66,17 +66,18 @@ class RuleRepository:
                     row[ACCOUNT_NAME_ELEMENT],
                     row[TIME_ELEMENT],
                     weekday,
-                    dayOfMonth
+                    day_of_month
                 )
-                listOfRules.append(rule)
+                rules_list.append(rule)
 
-        return listOfRules
+        return rules_list
 
-    def saveRules(self, listOfRules: list[Rule]) -> None:
+    @staticmethod
+    def save_rules(rules_list: list[Rule]) -> None:
         """
         Saves rules in RULES_FILE.
         Args:
-            listOfRules (list[Rule]): the list of rules.
+            rules_list (list[Rule]): the list of rules.
         Raises:
             PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
@@ -86,27 +87,27 @@ class RuleRepository:
             raise PathToRulesFileDoesNotExistException()
 
         with open(RULES_FILE_PATH, mode='w', newline='') as file:
-            for rule in listOfRules:
-                csv.writer(file).writerow(rule.toRow())
+            for rule in rules_list:
+                csv.writer(file).writerow(rule.to_row())
 
-    def deleteRule(self, rule: Rule) -> None:
+    def delete_rule(self, rule: Rule) -> None:
         """
-        Deletes the rule from RULE_FILE.
+        Deletes the rules from RULE_FILE.
         Raises:
-            MalformedRuleAttributesException: raises if the number of rule
+            MalformedRuleAttributesException: raises if the number of rules
             attributes is incorrect.
             PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
         """
-        listOfRules = self.loadRules()
-        filteredListOfRules = [i for i in listOfRules if i != rule]
-        self.saveRules(filteredListOfRules)
+        rules_list = self.load_rules()
+        filtered_rules_list = [i for i in rules_list if i != rule]
+        self.save_rules(filtered_rules_list)
 
-    def saveUniqueRules(self, newRules: list[Rule]) -> None:
+    def save_unique_rules(self, new_rules: list[Rule]) -> None:
         """
         Saves the unique rules to RULE_FILE.
         Raises:
-            MalformedRuleAttributesException: raises if the number of rule
+            MalformedRuleAttributesException: raises if the number of rules
             attributes is incorrect.
             PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
@@ -114,11 +115,11 @@ class RuleRepository:
         if not os.path.exists(RULES_FILE_PATH):
             raise PathToRulesFileDoesNotExistException()
 
-        existingRules = self.loadRules()
+        existing_rules = self.load_rules()
 
-        combinedRules = set(existingRules) | set(newRules)
+        combined_rules = set(existing_rules) | set(new_rules)
 
         with open(RULES_FILE_PATH, mode='w', newline='') as file:
             writer = csv.writer(file)
-            for rule in combinedRules:
-                writer.writerow(rule.toRow())
+            for rule in combined_rules:
+                writer.writerow(rule.to_row())

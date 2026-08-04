@@ -15,16 +15,16 @@
 import os
 
 # Folders
-RULE_DIRECTORY = "rule"
+RULE_DIRECTORY = "rules"
 CONFIG_DIRECTORY = "config"
 
 # Files
 ICON_FILE = "GooD_Autobackuper.svg"
 RULES_FILE = "rules.csv"
-LOGGER_CONFIG_FILE = "configLogger.json"
+LOGGER_CONFIG_FILE = "config_logger.json"
 
 # Confidential files
-TOKEN_FILE = "token.json"  # nosec B105
+TOKEN_FILE = "token.json"
 CREDENTIALS_FILE = "credentials.json"
 
 # Scopes

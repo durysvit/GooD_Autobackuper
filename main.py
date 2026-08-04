@@ -14,52 +14,55 @@
 #
 # Email argnullo@gmail.com.
 #
-# Version 2.0.0.
+# Version 2.1.0.
 
-"""Module containing the entry point."""
+"""Application entry point."""
 
 import sys
 from PyQt5.QtWidgets import QApplication
-from app.initializer import initializeEnvironment
-from view.MainWindow import MainWindow
-from model.RuleRepository import RuleRepository
-from model.CredentialsRepository import CredentialsRepository
-from controller.ApplicationController import ApplicationController
-from worker.FileCopyWorker import FileCopyWorker
-from service.GoogleAuthService import GoogleAuthService
-from logger.logger import logger
+from infrastructure.initializer import initialize_environment
+from view.main_window import MainWindow
+from model.repositories.RuleRepository import RuleRepository
+from model.repositories.CredentialsRepository import CredentialsRepository
+from controllers.application_controller import ApplicationController
+from worker.file_copy_worker import FileCopyWorker
+from service.google_auth_service import GoogleAuthService
+from infrastructure.logger import logger
+
+def main():
+    """Application entry point."""
+    logger.info("Start an application.")
+    
+    initialize_environment()
+    
+    application = QApplication(sys.argv)
+    
+    credentials_repository = CredentialsRepository()
+    
+    drive_service = GoogleAuthService.get_authorized_service(
+        credentials_repository
+        )
+    
+    rule_repository = RuleRepository()
+    
+    list_of_rules = rule_repository.load_rules()
+    
+    main_window = MainWindow()
+    worker = FileCopyWorker(drive_service, list_of_rules)
+    application_controller = ApplicationController(
+        main_window,
+        rule_repository,
+        credentials_repository,
+        worker,
+        drive_service
+    )
+    
+    main_window.show()
+    exit_code = application.exec_()
+    
+    logger.info("End the application.")
+    return exit_code
+
 
 if __name__ == "__main__":
-    logger.info("Start an application.")
-
-    initializeEnvironment()
-
-    application = QApplication(sys.argv)
-
-    credentialsRepository = CredentialsRepository()
-
-    driveService = GoogleAuthService.getAuthorizedService(
-        credentialsRepository
-    )
-
-    ruleRepository = RuleRepository()
-
-    listOfRules = ruleRepository.loadRules()
-
-    mainWindow = MainWindow()
-    worker = FileCopyWorker(driveService, listOfRules)
-    applicationController = ApplicationController(
-        mainWindow,
-        ruleRepository,
-        credentialsRepository,
-        worker,
-        driveService
-    )
-
-    mainWindow.show()
-
-    exitCode = application.exec_()
-
-    logger.info("End the application.")
-
-    sys.exit(exitCode)
+    sys.exit(main())

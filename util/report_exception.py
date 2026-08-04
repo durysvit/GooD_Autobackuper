@@ -10,20 +10,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-"""Module containing the displayCriticalMessage method."""
+"""Module containing the reportException method."""
 
-from PyQt5.QtWidgets import QMessageBox
+from infrastructure.logger import logger
+from util.display_critical_message import display_critical_message
 
 
-def displayCriticalMessage(exceptionMessage: str) -> None:
-    """
-    Displays a critical message box with the exception message.
-    Args:
-        exceptionMessage (str): is the exception message.
-    """
-    QMessageBox.critical(
-        None,
-        "Error",
-        str(exceptionMessage),
-        QMessageBox.Ok
-    )
+def report_exception(exception: Exception) -> None:
+    """Reports exceptions - logs and displays message"""
+    logger.error(exception)
+    display_critical_message(str(exception))

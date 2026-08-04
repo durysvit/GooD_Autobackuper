@@ -16,16 +16,16 @@
 class GoogleDriveService:
     """The class of Google Drive Service."""
     @staticmethod
-    def listFolders(service, parentID="root") -> list[dict]:
+    def list_folders(service, parent_id="root") -> list[dict]:
         """
         Returns the directory hierarchy in Google Drive.
         Args:
             service (Service): is the drive service.
-            parentID (str): is the parent ID.
+            parent_id (str): is the parent ID.
         Returns:
             list[dict]: the directory hierarchy in Google Drive.
         """
-        query = f"'{parentID}' in parents and mimeType = " + \
+        query = f"'{parent_id}' in parents and mimeType = " + \
             "'application/vnd.google-apps.folder' and trashed = false"
         result = service.files().list(
             q=query,

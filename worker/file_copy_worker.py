@@ -19,7 +19,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from model.Rule import Rule
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
-from exception.exceptions import (
+from exceptions.exceptions import (
     FileNotUploadedException,
     FolderIDDoesNotExistException,
     ListOfRulesIsNoneException,
@@ -29,134 +29,134 @@ from exception.exceptions import (
 
 class FileCopyWorker(QThread):
     """The class of Google Drive worker."""
-    updateSignal = pyqtSignal()
-    errorOccured = pyqtSignal(str)
+    update_signal = pyqtSignal()
+    error_occurred = pyqtSignal(str)
 
-    def __init__(self, driveService, listOfRules: list[Rule]):
+    def __init__(self, drive_service, rules_list: list[Rule]):
         """
         Initializes the file copy worker.
         Args:
-            listOfRules (list[Rule]): list of rules.
+            rules_list (list[Rule]): list of rules.
         Raises:
             ListOfRulesIsNoneException: raise if the list of rules is None.
             DriveServiceInNoneException: raises if the drive service is None.
         """
         super().__init__()
-        if listOfRules is None:
+        if rules_list is None:
             raise ListOfRulesIsNoneException()
-        if driveService is None:
+        if drive_service is None:
             raise DriveServiceInNoneException()
 
-        self.driveService = driveService
-        self.listOfRules = listOfRules
+        self.drive_service = drive_service
+        self.rules_list = rules_list
 
     def run(self) -> None:
         """Checks the time, the date to start copying."""
         while True:
-            for rule in self.listOfRules:
+            for rule in self.rules_list:
                 now = datetime.datetime.now()
-                currentWeekday = now.strftime("%A")
-                currentDayOfMonth = now.day
-                currentTimeStr = now.strftime("%H:%M")
+                current_weekday = now.strftime("%A")
+                current_day_of_month = now.day
+                current_time = now.strftime("%H:%M")
 
-                shouldCheck = True
+                should_check = True
 
                 if rule.weekday and rule.weekday.strip():
-                    if rule.weekday.lower() != currentWeekday.lower():
-                        shouldCheck = False
+                    if rule.weekday.lower() != current_weekday.lower():
+                        should_check = False
 
-                if rule.dayOfMonth:
-                    if rule.dayOfMonth != currentDayOfMonth:
-                        shouldCheck = False
+                if rule.day_of_month:
+                    if rule.day_of_month != current_day_of_month:
+                        should_check = False
 
-                if shouldCheck and currentTimeStr == rule.time:
+                if should_check and current_time == rule.time:
                     try:
-                        if not self.__isFolderIDExists(rule.folderID):
-                            raise FolderIDDoesNotExistException(rule.folderID)
+                        if not self.__is_folder_id_exists(rule.folder_id):
+                            raise FolderIDDoesNotExistException(rule.folder_id)
                     except (
                         FolderIDDoesNotExistException,
                         HttpError
                     ) as exception:
-                        self.errorOccured.emit(str(exception))
+                        self.error_occurred.emit(str(exception))
                         continue
                     try:
-                        self.__uploadToGoogleDrive(
-                            rule.pathFrom,
-                            rule.folderID
+                        self.__upload_to_google_drive(
+                            rule.path_from,
+                            rule.folder_id
                         )
                     except FileNotUploadedException as exception:
-                        self.errorOccured.emit(str(exception))
+                        self.error_occurred.emit(str(exception))
                         continue
-            self.updateSignal.emit()
+            self.update_signal.emit()
             WORKER_CHECK_TIME = 60
             time.sleep(WORKER_CHECK_TIME)
 
-    def __uploadToGoogleDrive(self, filePath: str, folderID: str) -> None:
+    def __upload_to_google_drive(self, file_path: str, folder_id: str) -> None:
         """
         Uploads files from a list of file paths to a Google Drive folder by its
         ID.
         Args:
             source: is a file path.
-            folderID: is the ID of the destination folder.
+            folder_id: is the ID of the destination folder.
         Raises:
             FileNotUploadedException: raise if the file has not been uploaded
             to Google Drive.
         """
-        if os.path.isfile(filePath):
+        if os.path.isfile(file_path):
             try:
-                self.__uploadFile(filePath, folderID)
+                self.__upload_file(file_path, folder_id)
             except Exception as exception:
                 raise FileNotUploadedException() from exception
 
-    def __uploadFile(self, filePath: str, folderID: str) -> None:
+    def __upload_file(self, file_path: str, folder_id: str) -> None:
         """
         Uploads a single file to the given Google Drive folder by its ID.
         Args:
-            filePath: is a file path.
-            folderID: is the destination folder ID.
+            file_path: is a file path.
+            folder_id: is the destination folder ID.
         """
-        fileName = os.path.basename(filePath)
+        file_name = os.path.basename(file_path)
 
-        query = f"'{folderID}' in parents and name = '{fileName}' and " + \
+        query = f"'{folder_id}' in parents and name = '{file_name}' and " + \
             "trashed = false"
-        response = self.driveService.files().list(
+        response = self.drive_service.files().list(
             q=query,
             spaces="drive",
             fields="files(id)"
         ).execute()
         files = response.get("files", [])
 
-        media = MediaFileUpload(filePath, mimetype="application/octet-stream")
+        media = MediaFileUpload(file_path, mimetype="application/octet-stream")
 
         if files:
-            fileId = files[0]["id"]
-            self.driveService.files().update(
-                fileId=fileId,
+            file_id = files[0]["id"]
+            self.drive_service.files().update(
+                fileId=file_id,
                 media_body=media
             ).execute()
         else:
-            metadata = {"name": fileName, "parents": [folderID]}
-            self.driveService.files().create(
+            metadata = {"name": file_name, "parents": [folder_id]}
+            self.drive_service.files().create(
                 body=metadata,
                 media_body=media,
                 fields="id"
             ).execute()
 
-    def __isFolderIDExists(self, folderID: str) -> bool:
+    def __is_folder_id_exists(self, folder_id: str) -> bool:
         """
         Checks whether a folder with a given ID exists.
         Args:
-            folderID: is the Google Drive folder ID.
+            folder_id: is the Google Drive folder ID.
         Raises:
             HttpError: raise if the folder ID doesn't exist.
         """
         try:
-            self.driveService.files().get(
-                fileId=folderID,
+            self.drive_service.files().get(
+                fileId=folder_id,
                 fields="id, name, mimeType"
             ).execute()
             return True
         except HttpError as exception:
             if exception.resp.status == 404:
                 return False
-            raise FolderIDDoesNotExistException(folderID) from exception
+            raise FolderIDDoesNotExistException(folder_id) from exception

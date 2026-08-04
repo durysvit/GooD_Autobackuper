@@ -12,7 +12,7 @@
 
 """Module containing the GoogleAuthService class."""
 
-from model.CredentialsRepository import CredentialsRepository
+from model.repositories.CredentialsRepository import CredentialsRepository
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -23,7 +23,7 @@ from exception.exceptions import TokenFileDoesNotExistException
 class GoogleAuthService:
     """The class of GoogleAuthService - authorizes the user in the Google."""
     @staticmethod
-    def getAuthorizedService(credentialsModel: CredentialsRepository):
+    def get_authorized_service(credentials_model: CredentialsRepository):
         """
         Returns the drive service.
         Raises:
@@ -32,7 +32,7 @@ class GoogleAuthService:
         """
         credentials = None
         try:
-            credentials = credentialsModel.loadCredentials()
+            credentials = credentials_model.load_credentials()
         except TokenFileDoesNotExistException:
             ...
         if not credentials or not credentials.valid:
@@ -46,5 +46,5 @@ class GoogleAuthService:
                     SCOPES
                 )
                 credentials = flow.run_local_server(port=0)
-            credentialsModel.saveCredentials(credentials)
+            credentials_model.save_credentials(credentials)
         return build("drive", "v3", credentials=credentials)
