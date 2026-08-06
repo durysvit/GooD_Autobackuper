@@ -53,7 +53,9 @@ class CreationRuleWindow(QDialog):
 
         self.browser_folder_id_button = QPushButton()
         self.browser_folder_id_button.setIcon(icon)
-        self.browser_folder_id_button.clicked.connect(self.select_google_folder)
+        self.browser_folder_id_button.clicked.connect(
+            self.select_google_folder
+        )
 
         self.account_input = QLineEdit()
         self.account_input.setPlaceholderText("Account")
@@ -125,15 +127,15 @@ class CreationRuleWindow(QDialog):
 
     def remove_selected_time(self) -> None:
         """Removes selected time from the list of the time."""
-        selectedItems = self.time_list.selectedItems()
-        for item in selectedItems:
+        selected_items = self.time_list.selectedItems()
+        for item in selected_items:
             self.time_list.takeItem(self.time_list.row(item))
 
     def select_folder(self) -> None:
         """Selects folder."""
-        folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
-        if folderPath:
-            self.path_from_input.setText(folderPath)
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
+        if folder_path:
+            self.path_from_input.setText(folder_path)
 
     def select_google_folder(self):
         """Selects Google Drive folder."""

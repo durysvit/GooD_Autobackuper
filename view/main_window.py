@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon(ICON_FILE))
         self.tray_icon.setContextMenu(tray_menu)
-        self.tray_icon.activated.connect(self.iconClicked)
+        self.tray_icon.activated.connect(self.icon_clicked)
         self.tray_icon.show()
 
         self.delete_token_file_action = QAction("&Delete token file", self)
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
             event.ignore()
         self.hide()
 
-    def iconClicked(self, reason) -> None:
+    def icon_clicked(self, reason) -> None:
         """Opens the window."""
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.show()
@@ -162,7 +162,7 @@ class MainWindow(QMainWindow):
         Returns the selected row in the table.
         Raises:
             NoRuleSelectedInTableException: raise if no row was selected to
-            delete.
+                delete.
         Returns:
             int: selected rules.
         """
@@ -232,5 +232,7 @@ class MainWindow(QMainWindow):
     def __center_window(self) -> None:
         """Centers the window in screen."""
         frame_geometry = self.frameGeometry()
-        frame_geometry.moveCenter(QDesktopWidget().availableGeometry().center())
+        frame_geometry.moveCenter(
+            QDesktopWidget().availableGeometry().center()
+        )
         self.move(frame_geometry.topLeft())

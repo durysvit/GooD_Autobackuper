@@ -82,7 +82,6 @@ class RuleRepository:
             PathToRulesFileDoesNotExistException: raises if path to rules file
             does not exist.
         """
-
         if not os.path.exists(RULES_FILE_PATH):
             raise PathToRulesFileDoesNotExistException()
 

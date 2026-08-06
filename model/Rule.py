@@ -28,7 +28,7 @@ from exceptions.exceptions import (
 
 
 class Rule:
-    """Class representing a rules."""
+    """Schedule rule."""
     def __init__(self, path_from: str, folder_id: str, account: str, time: str,
                  weekday: str | None = None, day_of_month: int | None = None):
         """

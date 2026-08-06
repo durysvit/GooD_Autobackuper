@@ -16,7 +16,7 @@ from view.creation_rule_window import CreationRuleWindow
 from model.Rule import Rule
 from model.repositories.RuleRepository import RuleRepository
 from util.report_exception import report_exception
-from exception.exceptions import (
+from exceptions.exceptions import (
     PathFromLineEditIsEmptyException,
     FolderIDLineEditIsEmptyException,
     AccountLineEditIsEmptyException,
@@ -57,11 +57,11 @@ class CreationRuleController:
         Gets the rules data.
         Raises:
             PathFromLineEditIsEmptyException: raise if the path from line edit
-            is empty.
+                is empty.
             FolderIDLineEditIsEmptyException: raise if the folder ID line edit
-            is empty.
+                is empty.
             AccountLineEditIsEmptyException: raise if the account line edit is
-            empty.
+                empty.
             TimeListIsEmptyException: raise if the time list is empty.
         Returns:
             rules_list (list[Rule]): list of rules.

@@ -17,7 +17,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from const.const import CREDENTIALS_FILE, SCOPES
-from exception.exceptions import TokenFileDoesNotExistException
+from exceptions.exceptions import TokenFileDoesNotExistException
 
 
 class GoogleAuthService:
@@ -28,7 +28,7 @@ class GoogleAuthService:
         Returns the drive service.
         Raises:
             TokenFileDoesNotExistException: raises if the token file does not
-            exist (ignored).
+                exist (ignored).
         """
         credentials = None
         try:

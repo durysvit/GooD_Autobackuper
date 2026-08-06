@@ -29,6 +29,7 @@ from worker.file_copy_worker import FileCopyWorker
 from service.google_auth_service import GoogleAuthService
 from infrastructure.logger import logger
 
+
 def main():
     """Application entry point."""
     logger.info("Start an application.")
