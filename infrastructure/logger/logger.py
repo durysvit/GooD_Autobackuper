@@ -15,9 +15,9 @@
 import os
 import json
 from loguru import logger
-from const.const import LOGGER_CONFIG_FILE_PATH
+from const.const import LOGGER_SETTINGS_FILE_PATH
 
-with open(LOGGER_CONFIG_FILE_PATH, 'r') as loggerConfigFile:
+with open(LOGGER_SETTINGS_FILE_PATH, 'r') as loggerConfigFile:
     loggerConfig = json.load(loggerConfigFile)
 
 os.makedirs(os.path.dirname(loggerConfig["logPath"]), exist_ok=True)

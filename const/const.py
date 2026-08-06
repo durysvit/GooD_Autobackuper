@@ -16,12 +16,12 @@ import os
 
 # Folders
 RULE_DIRECTORY = "rules"
-CONFIG_DIRECTORY = "config"
+SETTINGS_DIRECTORY = "settings"
 
 # Files
 ICON_FILE = "GooD_Autobackuper.svg"
 RULES_FILE = "rules.csv"
-LOGGER_CONFIG_FILE = "config_logger.json"
+LOGGER_SETTINGS_FILE = "config_logger.json"
 
 # Confidential files
 TOKEN_FILE = "token.json"
@@ -32,7 +32,10 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 # Paths
 RULES_FILE_PATH = os.path.join(RULE_DIRECTORY, RULES_FILE)
-LOGGER_CONFIG_FILE_PATH = os.path.join(CONFIG_DIRECTORY, LOGGER_CONFIG_FILE)
+LOGGER_SETTINGS_FILE_PATH = os.path.join(
+    SETTINGS_DIRECTORY,
+    LOGGER_SETTINGS_FILE
+)
 
 # Numbers
 NUMBER_OF_RULE_ATTRIBUTES = 6

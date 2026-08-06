@@ -156,7 +156,7 @@ class CreationRuleWindow(QDialog):
         else:
             self.weekday_combobox.setDisabled(False)
 
-    def toggle_month_day(self, text: str) -> None:
+    def toggle_day_of_month(self, text: str) -> None:
         """
         Disables dayOfMonthSpinBox if weekday is selected, else enables it.
         Args:

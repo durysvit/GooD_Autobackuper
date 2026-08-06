@@ -12,7 +12,7 @@
 
 """Module containing the reportException method."""
 
-from infrastructure.logger import logger
+from infrastructure.logger.logger import logger
 from util.display_critical_message import display_critical_message
 
 
