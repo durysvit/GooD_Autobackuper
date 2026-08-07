@@ -36,22 +36,22 @@ class ApplicationController:
     The class of the ApplicationController - the application controllers binds
     windows, worker, models and services.
     """
-    def __init__(self, view: MainWindow, rule_model: RuleRepository,
-                 credentials_model: CredentialsRepository,
+    def __init__(self, view: MainWindow, rule_repository: RuleRepository,
+                 credentials_repository: CredentialsRepository,
                  worker: FileCopyWorker, drive_service):
         """
         Initializes a Rule instance with the given parameters.
         Args:
             view (MainWindow): is the main window.
-            rule_model (RuleRepository): is the rules management model.
-            credentials_model (CredentialsRepository): is the credentials
+            rule_repository (RuleRepository): is the rules management model.
+            credentials_repository (CredentialsRepository): is the credentials
             management model.
             worker (FileCopyWorker): is the Google Drive backup worker.
             drive_service: is the authorized service.
         """
         self.view = view
-        self.rule_model = rule_model
-        self.credentials_model = credentials_model
+        self.rule_model = rule_repository
+        self.credentials_model = credentials_repository
         self.worker = worker
         self.drive_service = drive_service
 

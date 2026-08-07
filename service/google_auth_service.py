@@ -23,7 +23,7 @@ from exceptions.exceptions import TokenFileDoesNotExistException
 class GoogleAuthService:
     """The class of GoogleAuthService - authorizes the user in the Google."""
     @staticmethod
-    def get_authorized_service(credentials_model: CredentialsRepository):
+    def get_authorized_service(credentials_repository: CredentialsRepository):
         """
         Returns the drive service.
         Raises:
@@ -32,7 +32,7 @@ class GoogleAuthService:
         """
         credentials = None
         try:
-            credentials = credentials_model.load_credentials()
+            credentials = credentials_repository.load_credentials()
         except TokenFileDoesNotExistException:
             ...
         if not credentials or not credentials.valid:
@@ -46,5 +46,5 @@ class GoogleAuthService:
                     SCOPES
                 )
                 credentials = flow.run_local_server(port=0)
-            credentials_model.save_credentials(credentials)
+            credentials_repository.save_credentials(credentials)
         return build("drive", "v3", credentials=credentials)

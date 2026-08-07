@@ -20,46 +20,28 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication
-from infrastructure.initializer import initialize_environment
-from view.main_window import MainWindow
-from model.repositories.RuleRepository import RuleRepository
-from model.repositories.CredentialsRepository import CredentialsRepository
-from controllers.application_controller import ApplicationController
-from worker.file_copy_worker import FileCopyWorker
-from service.google_auth_service import GoogleAuthService
+from infrastructure.initializer.initializer import initialize_environment
 from infrastructure.logger.logger import logger
+from application.containers.Container import Container
+
 
 def main():
     """Application entry point."""
     logger.info("Start an application.")
-    
+
     initialize_environment()
     
     application = QApplication(sys.argv)
-    
-    credentials_repository = CredentialsRepository()
-    
-    drive_service = GoogleAuthService.get_authorized_service(
-        credentials_repository
-        )
-    
-    rule_repository = RuleRepository()
-    
-    list_of_rules = rule_repository.load_rules()
-    
-    main_window = MainWindow()
-    worker = FileCopyWorker(drive_service, list_of_rules)
-    application_controller = ApplicationController(
-        main_window,
-        rule_repository,
-        credentials_repository,
-        worker,
-        drive_service
-    )
-    
+
+    container = Container()
+    container.init_resources()
+
+    main_window = container.main_window()
+    controller = container.application_controller()
+
     main_window.show()
     exit_code = application.exec_()
-    
+
     logger.info("End the application.")
     return exit_code
 
