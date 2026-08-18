@@ -11,8 +11,8 @@
 # GNU General Public License for more details.
 
 from view.google_drive_folder_picker import GoogleDriveFolderPicker
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtWidgets import (
     QDialog,
     QPushButton,
     QVBoxLayout,
@@ -45,7 +45,7 @@ class CreationRuleWindow(QDialog):
         self.folder_id_input.setPlaceholderText("Folder ID")
         self.folder_id_input.setReadOnly(True)
 
-        icon = self.style().standardIcon(QStyle.SP_DirOpenIcon)
+        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon)
 
         self.browser_path_from_button = QPushButton()
         self.browser_path_from_button.setIcon(icon)
@@ -141,7 +141,7 @@ class CreationRuleWindow(QDialog):
         """Selects Google Drive folder."""
         dialog = GoogleDriveFolderPicker(self.driveService)
         dialog.folder_selected.connect(
-            lambda folderID: self.folder_id_input.setText(folderID)
+            lambda folder_id: self.folder_id_input.setText(folder_id)
         )
         dialog.exec_()
 
@@ -190,7 +190,7 @@ class CreationRuleWindow(QDialog):
         """
         Adds response to Delete key press and time selection in the table.
         """
-        if source == self.time_list and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Delete:
+        if source == self.time_list and event.type() == QEvent.Type.KeyPress:
+            if event.key() == Qt.Key.Key_Delete:
                 self.remove_selected_time()
         return super().eventFilter(source, event)

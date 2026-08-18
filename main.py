@@ -19,7 +19,7 @@
 """Application entry point."""
 
 import sys
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 from infrastructure.initializer.initializer import initialize_environment
 from infrastructure.logger.logger import logger
 from application.containers.Container import Container
@@ -40,7 +40,7 @@ def main():
     controller = container.application_controller()
 
     main_window.show()
-    exit_code = application.exec_()
+    exit_code = application.exec()
 
     logger.info("End the application.")
     return exit_code

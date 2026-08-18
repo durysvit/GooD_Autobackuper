@@ -20,3 +20,5 @@ Icon=$ICON_PATH
 Terminal=false" > "$DESKTOP_FILE"
     echo "The program has been added to startup."
 fi
+
+pause

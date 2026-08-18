@@ -15,7 +15,7 @@
 import os
 import time
 import datetime
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 from model.Rule import Rule
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
@@ -29,8 +29,8 @@ from exceptions.exceptions import (
 
 class FileCopyWorker(QThread):
     """The class of Google Drive worker."""
-    update_signal = pyqtSignal()
-    error_occurred = pyqtSignal(str)
+    update_signal = Signal()
+    error_occurred = Signal(str)
 
     def __init__(self, drive_service, rules_list: list[Rule]):
         """
@@ -135,7 +135,10 @@ class FileCopyWorker(QThread):
                 media_body=media
             ).execute()
         else:
-            metadata = {"name": file_name, "parents": [folder_id]}
+            metadata = {
+                "name": file_name,
+                "parents": [folder_id]
+            }
             self.drive_service.files().create(
                 body=metadata,
                 media_body=media,

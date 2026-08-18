@@ -6,4 +6,4 @@ variable-rgx=^[a-z][a-zA-Z0-9]+$
 attr-rgx=^[a-z][a-zA-Z0-9]+$
 
 [TYPECHECK]
-ignored-modules=PyQt5
+ignored-modules=PySide6

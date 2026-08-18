@@ -12,8 +12,8 @@
 
 """Module containing the MainWindow class."""
 
-from PyQt5.QtGui import QIcon, QCloseEvent
-from PyQt5.QtWidgets import (
+from PySide6.QtGui import QIcon, QCloseEvent
+from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
@@ -23,13 +23,12 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QMenu,
-    QAction,
-    QDesktopWidget,
     QHeaderView,
     QSizePolicy,
     QSystemTrayIcon,
     QAbstractItemView,
 )
+from PySide6.QtGui import QAction
 from model.Rule import Rule
 from const.const import ICON_FILE
 from exceptions.exceptions import (
@@ -215,7 +214,7 @@ class MainWindow(QMainWindow):
 
     def __resize_window_in_half_of_screen(self) -> None:
         """Resizes the window to half the screen size."""
-        screen = QDesktopWidget().screenGeometry()
+        screen = self.screen().geometry()
 
         HALF_SCREEN = 2
         halfOfScreenByWidth = screen.width() // HALF_SCREEN
@@ -233,6 +232,6 @@ class MainWindow(QMainWindow):
         """Centers the window in screen."""
         frame_geometry = self.frameGeometry()
         frame_geometry.moveCenter(
-            QDesktopWidget().availableGeometry().center()
+            self.screen().availableGeometry().center()
         )
         self.move(frame_geometry.topLeft())
