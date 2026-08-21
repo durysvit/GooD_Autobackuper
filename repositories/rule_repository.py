@@ -15,7 +15,7 @@
 import os
 import csv
 from const.const import RULES_FILE_PATH, NUMBER_OF_RULE_ATTRIBUTES
-from model.Rule import Rule
+from core.model.Rule import Rule
 from exceptions.exceptions import (
     PathToRulesFileDoesNotExistException,
     MalformedRuleAttributesException,

@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-from view.google_drive_folder_picker import GoogleDriveFolderPicker
+from views.google_drive_folder_picker import GoogleDriveFolderPicker
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import (
     QDialog,

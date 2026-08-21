@@ -29,42 +29,25 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
 )
 from PySide6.QtGui import QAction
-from model.Rule import Rule
+from core.model.Rule import Rule
 from const.const import ICON_FILE
 from exceptions.exceptions import (
     ListOfRulesIsEmptyException,
     NoRuleSelectedInTableException
 )
+from core.enums.TableColumn import TableColumn
 
 
 class MainWindow(QMainWindow):
     """The class of main window."""
-    PATH_FROM_COLUMN = 0
-    FOLDER_ID_COLUMN = 1
-    ACCOUNT_NAME_COLUMN = 2
-    TIME_COLUMN = 3
-    WEEKDAY_COLUMN = 4
-    DAY_OF_MONTH_COLUMN = 5
-
     def __init__(self):
         """Initializes the main window."""
         super().__init__()
         self.setWindowTitle("GooD Autobackuper")
         self.setWindowIcon(QIcon(ICON_FILE))
 
-        NUMBER_OF_COLUMNS = 6
-        NUMBER_OF_ROWS = 0
-        self.table = QTableWidget(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS)
-        self.table.setHorizontalHeaderLabels(
-            [
-                "Path from",
-                "Folder ID",
-                "Account",
-                "Time",
-                "Weekday",
-                "Day of month"
-            ]
-        )
+        self.table = QTableWidget(0, len(TableColumn))
+        self.table.setHorizontalHeaderLabels(TableColumn.labels())
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
         self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -124,20 +107,39 @@ class MainWindow(QMainWindow):
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
 
-            self.table.setItem(row_position, self.PATH_FROM_COLUMN,
-                               QTableWidgetItem(rule.path_from))
-            self.table.setItem(row_position, self.FOLDER_ID_COLUMN,
-                               QTableWidgetItem(rule.folder_id))
-            self.table.setItem(row_position, self.ACCOUNT_NAME_COLUMN,
-                               QTableWidgetItem(rule.account))
-            self.table.setItem(row_position, self.TIME_COLUMN,
-                               QTableWidgetItem(rule.time))
-            self.table.setItem(row_position, self.WEEKDAY_COLUMN,
-                               QTableWidgetItem(rule.weekday or ""))
-            day_of_month = str(rule.day_of_month) \
-                if rule.day_of_month is not None else ""
-            self.table.setItem(row_position, self.DAY_OF_MONTH_COLUMN,
-                               QTableWidgetItem(day_of_month))
+            self.table.setItem(
+                row_position,
+                TableColumn.PATH_FROM,
+                QTableWidgetItem(rule.path_from)
+            )
+            self.table.setItem(
+                row_position,
+                TableColumn.FOLDER_ID,
+                QTableWidgetItem(rule.folder_id)
+            )
+            self.table.setItem(
+                row_position,
+                TableColumn.ACCOUNT_NAME,
+                QTableWidgetItem(rule.account)
+            )
+            self.table.setItem(
+                row_position,
+                TableColumn.TIME,
+                QTableWidgetItem(rule.time)
+            )
+            self.table.setItem(
+                row_position,
+                TableColumn.WEEKDAY,
+                QTableWidgetItem(rule.weekday or "")
+            )
+            self.table.setItem(
+                row_position,
+                TableColumn.DAY_OF_MONTH,
+                QTableWidgetItem(
+                    str(rule.day_of_month) \
+                        if rule.day_of_month is not None else ""
+                )
+            )
 
     @staticmethod
     def close_application() -> None:
@@ -165,9 +167,8 @@ class MainWindow(QMainWindow):
         Returns:
             int: selected rules.
         """
-        NO_RULE_SELECTED = -1
         selected_rule = self.table.currentRow()
-        if selected_rule == NO_RULE_SELECTED:
+        if selected_rule == -1:
             raise NoRuleSelectedInTableException()
         return selected_rule
 
@@ -182,31 +183,33 @@ class MainWindow(QMainWindow):
         return {
             "pathFrom": self.table.item(
                 selected_row,
-                self.PATH_FROM_COLUMN
+                TableColumn.PATH_FROM
             ).text(),
             "folderID": self.table.item(
                 selected_row,
-                self.FOLDER_ID_COLUMN
+                TableColumn.FOLDER_ID
             ).text(),
             "account": self.table.item(
                 selected_row,
-                self.ACCOUNT_NAME_COLUMN
+                TableColumn.ACCOUNT_NAME
             ).text(),
-            "time": self.table.item(selected_row, self.TIME_COLUMN).text(),
+            "time": self.table.item(
+                selected_row,
+                TableColumn.TIME
+            ).text(),
             "weekday": self.table.item(
                 selected_row,
-                self.WEEKDAY_COLUMN
+                TableColumn.WEEKDAY
             ).text(),
             "dayOfMonth": self.table.item(
                 selected_row,
-                self.DAY_OF_MONTH_COLUMN
+                TableColumn.DAY_OF_MONTH
             ).text()
         }
 
     def reset_table(self):
         """Resets the table."""
-        RESET_TABLE = 0
-        self.table.setRowCount(RESET_TABLE)
+        self.table.clearContents()
 
     def select_row(self, selected_row: int) -> None:
         """Selects the row in the table."""
@@ -216,16 +219,14 @@ class MainWindow(QMainWindow):
         """Resizes the window to half the screen size."""
         screen = self.screen().geometry()
 
-        HALF_SCREEN = 2
-        halfOfScreenByWidth = screen.width() // HALF_SCREEN
-        halfOfScreenByHeight = screen.height() // HALF_SCREEN
+        half_of_screen_by_width = screen.width() // 2
+        half_of_screen_by_height = screen.height() // 2
 
-        NO_MOVE = 0
         self.setGeometry(
-            NO_MOVE,
-            NO_MOVE,
-            halfOfScreenByWidth,
-            halfOfScreenByHeight
+            0,
+            0,
+            half_of_screen_by_width,
+            half_of_screen_by_height
         )
 
     def __center_window(self) -> None:

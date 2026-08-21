@@ -11,11 +11,11 @@
 # GNU General Public License for more details.
 
 from dependency_injector import containers, providers
-from model.repositories.CredentialsRepository import CredentialsRepository
-from model.repositories.RuleRepository import RuleRepository
+from repositories.credentials_repository import CredentialsRepository
+from repositories.rule_repository import RuleRepository
 from service.google_auth_service import GoogleAuthService
 from worker.file_copy_worker import FileCopyWorker
-from view.main_window import MainWindow
+from views.main_window import MainWindow
 from controllers.application_controller import ApplicationController
 
 

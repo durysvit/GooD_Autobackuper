@@ -12,11 +12,11 @@
 
 """Module containing the main ApplicationController class."""
 
-from view.main_window import MainWindow
-from view.creation_rule_window import CreationRuleWindow
-from model.Rule import Rule
-from model.repositories.RuleRepository import RuleRepository
-from model.repositories.CredentialsRepository import CredentialsRepository
+from views.main_window import MainWindow
+from views.creation_rule_window import CreationRuleWindow
+from core.model import Rule
+from repositories.rule_repository import RuleRepository
+from repositories.credentials_repository import CredentialsRepository
 from worker.file_copy_worker import FileCopyWorker
 from util.report_exception import report_exception
 from controllers.creation_rule_controller import (

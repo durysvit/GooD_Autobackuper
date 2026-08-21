@@ -12,9 +12,9 @@
 
 """Module containing the CreationRuleController class."""
 
-from view.creation_rule_window import CreationRuleWindow
-from model.Rule import Rule
-from model.repositories.RuleRepository import RuleRepository
+from views.creation_rule_window import CreationRuleWindow
+from core.model import Rule
+from repositories.rule_repository import RuleRepository
 from util.report_exception import report_exception
 from exceptions.exceptions import (
     PathFromLineEditIsEmptyException,
